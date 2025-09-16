@@ -52,14 +52,30 @@
                     return false;
                 }
                 this.user = res.user;
+
+                // Atualiza o HTML do painel
+                const nameEl = document.getElementById('professorName');
+                const emailEl = document.getElementById('professorEmail');
+                const avatarEl = document.getElementById('userAvatar');
+
+                if (nameEl) nameEl.textContent = this.user.nome;
+                if (emailEl) emailEl.textContent = this.user.email;
+                if (avatarEl) avatarEl.textContent = this.user.nome[0].toUpperCase(); // inicial do nome
+
                 return true;
             },
 
 
+
             async logout() {
-                await this.api('logout', {}, 'POST');
-                window.location.reload();
+                const res = await this.api('logout', {}, 'POST');
+                if (res.ok) {
+                    window.location.href = 'login_professor.php'; // redireciona após logout
+                } else {
+                    alert('Erro ao sair: ' + res.error);
+                }
             },
+
 
             // ===== Dashboard =====
             async loadDashboard() {

@@ -40,7 +40,7 @@ try {
             $pid = require_login();
             json_response([
                 'ok' => true,
-                'me' => [
+                'user' => [
                     'id' => $pid,
                     'nome' => $_SESSION['professor_nome'] ?? 'Professor',
                     'email' => $_SESSION['professor_email'] ?? 'professor@email.com',
@@ -48,6 +48,7 @@ try {
                 ]
             ]);
             break;
+
 
         case 'dashboard_stats':
             $pid = require_login();
