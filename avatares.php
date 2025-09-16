@@ -51,19 +51,69 @@
             height: 2px;
             background: var(--accent-color);
             border-radius: 50%;
-            opacity: 0.1;
-            animation: float 6s ease-in-out infinite;
+            opacity: 0.05;
         }
 
-        @keyframes float {
-            0%, 100% { 
-                transform: translateY(0px) translateX(0px);
-                opacity: 0.1;
-            }
-            50% { 
-                transform: translateY(-20px) translateX(10px);
-                opacity: 0.3;
-            }
+        .play-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            height: 70px;
+            padding: 0 1.5rem;
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                0 0 20px var(--shadow-glow);
+            backdrop-filter: blur(20px);
+        }
+
+        .play-button::before {
+            display: none;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px var(--shadow-glow);
+        }
+
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        .play-text {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .play-icon {
+            width: 0;
+            height: 0;
+            border-left: 20px solid #ffffff;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 4px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+            20%, 40%, 60%, 80% { transform: translateX(2px); }
         }
 
         .agents-section {
@@ -94,16 +144,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: glow-text 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow-text {
-            from {
-                filter: drop-shadow(0 0 10px rgba(155, 89, 182, 0.5));
-            }
-            to {
-                filter: drop-shadow(0 0 20px rgba(142, 68, 173, 0.5));
-            }
         }
 
         .header-controls {
@@ -226,21 +266,7 @@
         }
 
         .agent-card.selected::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
-            border-radius: 18px;
-            z-index: -1;
-            animation: pulse-border 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-border {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
+            display: none;
         }
 
         .agent-image {
@@ -334,27 +360,7 @@
         }
 
         .agent-meta::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(
-                from 0deg at 50% 50%,
-                transparent 0deg,
-                rgba(155, 89, 182, 0.1) 90deg,
-                transparent 180deg,
-                rgba(142, 68, 173, 0.1) 270deg,
-                transparent 360deg
-            );
-            animation: rotate 20s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            display: none;
         }
 
         .meta-header {
@@ -385,7 +391,7 @@
 
         .meta-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1rem;
             position: relative;
             z-index: 1;
@@ -497,9 +503,10 @@
 
         .stat-role {
             font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1rem;
+            text-transform: none;
+            letter-spacing: normal;
             font-weight: 500;
+            line-height: 1.3;
         }
 
         .stat-card:not(.unlocked) .stat-role {
@@ -511,23 +518,65 @@
         }
 
         .stat-percentage {
-            font-size: 1.125rem;
-            font-weight: 800;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 0.5rem 0.875rem;
-            border-radius: 8px;
-            white-space: nowrap;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
         }
 
-        .stat-card:not(.unlocked) .stat-percentage {
-            color: rgba(255, 255, 255, 0.3);
+        .agent-card.locked {
+            opacity: 0.6;
+            filter: grayscale(0.8);
+            cursor: not-allowed;
         }
 
-        .stat-card.unlocked .stat-percentage {
-            color: var(--text-primary);
+        .agent-card.locked:hover {
+            transform: none;
+            border-color: var(--border-color);
+            box-shadow: none;
+        }
+
+        .agent-card.locked::before {
+            display: none;
+        }
+
+        .agent-card.locked .agent-portrait {
+            filter: brightness(0.5) contrast(0.8) grayscale(1);
+        }
+
+        .agent-card.locked:hover .agent-portrait {
+            transform: none;
+            filter: brightness(0.5) contrast(0.8) grayscale(1);
+        }
+
+        .agent-locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            backdrop-filter: blur(2px);
+        }
+
+        .lock-icon {
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .agent-card.locked .agent-role-badge {
+            opacity: 0.3;
+        }
+
+        .agent-card.locked .agent-info {
+            background: rgba(0, 0, 0, 0.95);
+        }
+
+        .agent-card.locked .agent-name,
+        .agent-card.locked .agent-subtitle {
+            color: rgba(255, 255, 255, 0.4);
         }
 
         @media (max-width: 768px) {
@@ -536,36 +585,261 @@
             }
             
             .section-title {
-                font-size: 2rem;
+                font-size: 1.8rem;
+                letter-spacing: 0.1rem;
             }
             
             .header {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 1rem;
             }
             
             .header-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .filter-tabs {
                 justify-content: center;
+                gap: 0.25rem;
+            }
+            
+            .filter-tab {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.65rem;
+                min-width: 60px;
+                text-align: center;
             }
             
             .search-input {
                 min-width: auto;
                 width: 100%;
-                max-width: 300px;
+                max-width: 100%;
+                font-size: 0.85rem;
+                padding: 0.6rem 1rem;
             }
             
             .agents-grid {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
                 gap: 1rem;
                 padding: 0;
             }
             
+            .agent-card {
+                aspect-ratio: 2.5/3.5;
+                min-height: 220px;
+            }
+            
+            .agent-name {
+                font-size: 1rem;
+                letter-spacing: 0.1rem;
+            }
+            
+            .agent-subtitle {
+                font-size: 0.65rem;
+            }
+            
+            .agent-role-badge {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.6rem;
+                top: 0.75rem;
+                right: 0.75rem;
+            }
+            
+            .lock-icon {
+                font-size: 2rem;
+            }
+            
             .agent-meta {
                 padding: 1.5rem;
+                border-radius: 16px;
+            }
+            
+            .meta-title {
+                font-size: 1.4rem;
+            }
+            
+            .meta-description {
+                font-size: 0.9rem;
+                margin-bottom: 1.5rem;
             }
             
             .meta-stats {
                 grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-avatar {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .stat-name {
+                font-size: 0.9rem;
+            }
+            
+            .stat-role {
+                font-size: 0.7rem;
+                line-height: 1.2;
+            }
+            
+            .play-button {
+                height: 60px;
+                padding: 0 1.25rem;
+                bottom: 1.5rem;
+                right: 1.5rem;
+                gap: 0.6rem;
+            }
+            
+            .play-text {
+                font-size: 0.85rem;
+                letter-spacing: 0.08rem;
+            }
+            
+            .play-icon {
+                border-left: 16px solid #ffffff;
+                border-top: 10px solid transparent;
+                border-bottom: 10px solid transparent;
+                margin-left: 3px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0.75rem;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+            }
+            
+            .agents-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 0.75rem;
+            }
+            
+            .agent-card {
+                aspect-ratio: 2.2/3.2;
+                min-height: 200px;
+            }
+            
+            .agent-name {
+                font-size: 0.9rem;
+            }
+            
+            .agent-subtitle {
+                font-size: 0.6rem;
+            }
+            
+            .agent-role-badge {
+                font-size: 0.6rem;
+                padding: 0.15rem 0.5rem;
+            }
+            
+            .agent-meta {
+                padding: 1.25rem;
+            }
+            
+            .meta-title {
+                font-size: 1.2rem;
+            }
+            
+            .meta-description {
+                font-size: 0.85rem;
+            }
+            
+            .stat-card {
+                padding: 0.75rem;
+                gap: 0.75rem;
+            }
+            
+            .stat-avatar {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .stat-name {
+                font-size: 0.85rem;
+            }
+            
+            .stat-role {
+                font-size: 0.65rem;
+                line-height: 1.2;
+            }
+            
+            .filter-tab {
+                padding: 0.35rem 0.6rem;
+                font-size: 0.6rem;
+            }
+            
+            .play-button {
+                height: 55px;
+                padding: 0 1rem;
+                bottom: 1.25rem;
+                right: 1.25rem;
+                gap: 0.5rem;
+            }
+            
+            .play-text {
+                font-size: 0.75rem;
+                letter-spacing: 0.06rem;
+            }
+            
+            .play-icon {
+                border-left: 14px solid #ffffff;
+                border-top: 8px solid transparent;
+                border-bottom: 8px solid transparent;
+                margin-left: 2px;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .agents-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .agent-card {
+                min-height: 180px;
+            }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+            
+            .filter-tabs {
+                gap: 0.2rem;
+            }
+            
+            .filter-tab {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.55rem;
+                min-width: 50px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .agents-grid {
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 2rem;
+            }
+            
+            .agent-meta {
+                padding: 2.5rem;
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .agents-section {
+                max-width: 1600px;
+            }
+            
+            .agents-grid {
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             }
         }
     </style>
@@ -600,31 +874,37 @@
             </p>
             <div class="meta-stats">
                 <div class="stat-card">
-                    <div class="stat-avatar"><img src="https://via.placeholder.com/48?text=K" alt="KDA"></div>
+                    <div class="stat-avatar"><img src="https://via.placeholder.com/48?text=💪" alt="Força"></div>
                     <div class="stat-info">
-                        <div class="stat-name">KDA</div>
-                        <div class="stat-role">Average</div>
+                        <div class="stat-name">Força</div>
+                        <div class="stat-role">Ataque</div>
                     </div>
                     <div class="stat-percentage">-</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-avatar"><img src="https://via.placeholder.com/48?text=W" alt="Win Rate"></div>
+                    <div class="stat-avatar"><img src="https://via.placeholder.com/48?text=🛡️" alt="Defesa"></div>
                     <div class="stat-info">
-                        <div class="stat-name">Win Rate</div>
-                        <div class="stat-role">Recent</div>
+                        <div class="stat-name">Defesa</div>
+                        <div class="stat-role">Proteção</div>
                     </div>
                     <div class="stat-percentage">-</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-avatar"><img src="https://via.placeholder.com/48?text=H" alt="Headshot"></div>
+                    <div class="stat-avatar"><img src="https://via.placeholder.com/48?text=⚡" alt="Agilidade"></div>
                     <div class="stat-info">
-                        <div class="stat-name">Headshot %</div>
-                        <div class="stat-role">Accuracy</div>
+                        <div class="stat-name">Agilidade</div>
+                        <div class="stat-role">Mobilidade</div>
                     </div>
                     <div class="stat-percentage">-</div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Botão de Play Flutuante -->
+    <div class="play-button" id="playButton">
+        <div class="play-icon"></div>
+        <span class="play-text">PLAY</span>
     </div>
 
     <script>
@@ -637,114 +917,201 @@
             const searchInput = document.querySelector('.search-input');
 
             const agentsData = [
+                // AGENTES LIBERADOS (5 total)
                 { 
                     name: 'Jett', 
                     role: 'duelist', 
+                    unlocked: true,
                     description: 'Ágil e mortal, Jett é uma duelista que domina o campo com velocidade e precisão. Suas habilidades de mobilidade a tornam imprevisível em combate.',
-                    stats: { 'KDA': '2.9', 'Win Rate': '57%', 'Headshot %': '52%' }
-                },
-                { 
-                    name: 'Raze', 
-                    role: 'duelist', 
-                    description: 'Explosiva e criativa, Raze traz o caos ao campo de batalha com granadas e explosivos. Perfeita para quebrar defesas inimigas.',
-                    stats: { 'KDA': '2.7', 'Win Rate': '55%', 'Headshot %': '48%' }
-                },
-                { 
-                    name: 'Phoenix', 
-                    role: 'duelist', 
-                    description: 'Auto-suficiente e confiante, Phoenix pode se curar e ressuscitar com suas chamas. Um duelista versátil para qualquer situação.',
-                    stats: { 'KDA': '2.5', 'Win Rate': '53%', 'Headshot %': '50%' }
-                },
-                { 
-                    name: 'Reyna', 
-                    role: 'duelist', 
-                    description: 'Vampírica e implacável, Reyna se torna mais forte a cada kill. Uma força da natureza nas mãos certas.',
-                    stats: { 'KDA': '3.1', 'Win Rate': '58%', 'Headshot %': '54%' }
+                    stats: { 
+                        'Força': 'Alto poder de fogo direto',
+                        'Defesa': 'Foca em esquiva rápida',
+                        'Agilidade': 'Extremamente móvel'
+                    }
                 },
                 { 
                     name: 'Sage', 
                     role: 'sentinel', 
+                    unlocked: true,
                     description: 'Curadora e protetora, Sage mantém o time vivo com suas habilidades de suporte. Uma peça fundamental para qualquer composição.',
-                    stats: { 'KDA': '2.1', 'Win Rate': '52%', 'Headshot %': '42%' }
-                },
-                { 
-                    name: 'Cypher', 
-                    role: 'sentinel', 
-                    description: 'Mestre da informação, Cypher controla o mapa com suas câmeras e armadilhas. Nada escapa dos seus olhos eletrônicos.',
-                    stats: { 'KDA': '2.0', 'Win Rate': '50%', 'Headshot %': '40%' }
-                },
-                { 
-                    name: 'Killjoy', 
-                    role: 'sentinel', 
-                    description: 'Gênia da tecnologia, Killjoy defende áreas com seus gadgets automatizados. Suas invenções fazem o trabalho por ela.',
-                    stats: { 'KDA': '2.2', 'Win Rate': '51%', 'Headshot %': '43%' }
-                },
-                { 
-                    name: 'Chamber', 
-                    role: 'sentinel', 
-                    description: 'Francês elegante e preciso, Chamber combina defesa com letalidade. Suas armas customizadas são obras de arte mortais.',
-                    stats: { 'KDA': '2.6', 'Win Rate': '54%', 'Headshot %': '58%' }
-                },
-                { 
-                    name: 'Viper', 
-                    role: 'controller', 
-                    description: 'Especialista em guerra química, Viper controla o mapa com toxinas letais. Suas nuvens tóxicas dividem o campo de batalha.',
-                    stats: { 'KDA': '2.3', 'Win Rate': '49%', 'Headshot %': '44%' }
+                    stats: { 
+                        'Força': 'Suporte focado em cura',
+                        'Defesa': 'Máxima proteção da equipe',
+                        'Agilidade': 'Movimento calculado'
+                    }
                 },
                 { 
                     name: 'Omen', 
                     role: 'controller', 
+                    unlocked: true,
                     description: 'Sombroso e misterioso, Omen manipula as sombras para confundir inimigos. Suas fumaças são estratégicas e imprevisíveis.',
-                    stats: { 'KDA': '2.2', 'Win Rate': '48%', 'Headshot %': '43%' }
-                },
-                { 
-                    name: 'Brimstone', 
-                    role: 'controller', 
-                    description: 'Veterano militar, Brimstone lidera com autoridade e fumaças táticas. Seus orbitais devastam posições inimigas.',
-                    stats: { 'KDA': '2.1', 'Win Rate': '47%', 'Headshot %': '41%' }
-                },
-                { 
-                    name: 'Astra', 
-                    role: 'controller', 
-                    description: 'Controladora cósmica, Astra manipula energias estelares para controlar o campo. Suas estrelas redefinem o mapa.',
-                    stats: { 'KDA': '2.4', 'Win Rate': '50%', 'Headshot %': '45%' }
+                    stats: { 
+                        'Força': 'Controle tático do mapa',
+                        'Defesa': 'Bloqueios estratégicos',
+                        'Agilidade': 'Teleporte instantâneo'
+                    }
                 },
                 { 
                     name: 'Sova', 
                     role: 'initiator', 
+                    unlocked: true,
                     description: 'Caçador russo expert, Sova revela inimigos com precisão cirúrgica. Suas flechas de reconhecimento são legendárias.',
-                    stats: { 'KDA': '2.4', 'Win Rate': '51%', 'Headshot %': '46%' }
+                    stats: { 
+                        'Força': 'Precisão devastadora',
+                        'Defesa': 'Informação como escudo',
+                        'Agilidade': 'Movimento tático'
+                    }
+                },
+                { 
+                    name: 'Phoenix', 
+                    role: 'duelist', 
+                    unlocked: true,
+                    description: 'Auto-suficiente e confiante, Phoenix pode se curar e ressuscitar com suas chamas. Um duelista versátil para qualquer situação.',
+                    stats: { 
+                        'Força': 'Fogo devastador',
+                        'Defesa': 'Auto-regeneração',
+                        'Agilidade': 'Combate equilibrado'
+                    }
+                },
+                
+                // AGENTES BLOQUEADOS
+                { 
+                    name: 'Raze', 
+                    role: 'duelist', 
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Explosivos massivos',
+                        'Defesa': 'Agressão como defesa',
+                        'Agilidade': 'Mobilidade explosiva'
+                    }
+                },
+                { 
+                    name: 'Reyna', 
+                    role: 'duelist', 
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Vampirismo letal',
+                        'Defesa': 'Invulnerabilidade temporária',
+                        'Agilidade': 'Fuga espectral'
+                    }
+                },
+                { 
+                    name: 'Cypher', 
+                    role: 'sentinel', 
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Armadilhas letais',
+                        'Defesa': 'Vigilância total',
+                        'Agilidade': 'Movimento sigiloso'
+                    }
+                },
+                { 
+                    name: 'Killjoy', 
+                    role: 'sentinel', 
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Tecnologia automatizada',
+                        'Defesa': 'Gadgets defensivos',
+                        'Agilidade': 'Posicionamento estático'
+                    }
+                },
+                { 
+                    name: 'Chamber', 
+                    role: 'sentinel', 
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Precisão cirúrgica',
+                        'Defesa': 'Teleporte de escape',
+                        'Agilidade': 'Mobilidade elegante'
+                    }
+                },
+                { 
+                    name: 'Viper', 
+                    role: 'controller', 
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Toxinas corrosivas',
+                        'Defesa': 'Barreira química',
+                        'Agilidade': 'Controle territorial'
+                    }
+                },
+                { 
+                    name: 'Brimstone', 
+                    role: 'controller', 
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Bombardeio orbital',
+                        'Defesa': 'Fumaças táticas',
+                        'Agilidade': 'Liderança posicional'
+                    }
+                },
+                { 
+                    name: 'Astra', 
+                    role: 'controller', 
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Energia cósmica',
+                        'Defesa': 'Controle dimensional',
+                        'Agilidade': 'Manipulação espacial'
+                    }
                 },
                 { 
                     name: 'Breach', 
                     role: 'initiator', 
-                    description: 'Força bruta sueca, Breach quebra defesas com sismos devastadores. Suas habilidades atravessam paredes.',
-                    stats: { 'KDA': '2.3', 'Win Rate': '50%', 'Headshot %': '45%' }
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Sismos devastadores',
+                        'Defesa': 'Quebra de defesas',
+                        'Agilidade': 'Força bruta'
+                    }
                 },
                 { 
                     name: 'Skye', 
                     role: 'initiator', 
-                    description: 'Australiana conectada com a natureza, Skye cura aliados e caça inimigos. Suas criaturas são extensões de sua vontade.',
-                    stats: { 'KDA': '2.2', 'Win Rate': '49%', 'Headshot %': '44%' }
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Criaturas de combate',
+                        'Defesa': 'Cura natural',
+                        'Agilidade': 'Conexão selvagem'
+                    }
                 },
                 { 
                     name: 'KAY/O', 
                     role: 'initiator', 
-                    description: 'Robô anti-radiante, KAY/O suprime habilidades inimigas e oferece suporte tático. Tecnologia contra magia.',
-                    stats: { 'KDA': '2.5', 'Win Rate': '52%', 'Headshot %': '47%' }
+                    unlocked: false,
+                    description: 'Agente bloqueado. Complete missões para desbloquear.',
+                    stats: { 
+                        'Força': 'Supressão tecnológica',
+                        'Defesa': 'Blindagem robótica',
+                        'Agilidade': 'Eficiência mecânica'
+                    }
                 }
             ];
 
             function createAgentCard(agent) {
                 const card = document.createElement('div');
-                card.className = 'agent-card';
+                card.className = `agent-card ${agent.unlocked ? '' : 'locked'}`;
                 card.dataset.role = agent.role;
                 card.dataset.name = agent.name.toLowerCase();
+                card.dataset.unlocked = agent.unlocked;
+                
+                const lockedOverlay = agent.unlocked ? '' : '<div class="agent-locked-overlay"><div class="lock-icon">🔒</div></div>';
                 
                 card.innerHTML = `
                     <div class="agent-image">
                         <img class="agent-portrait" src="https://via.placeholder.com/300x400/1e1830/9b59b6?text=${encodeURIComponent(agent.name)}" alt="${agent.name}">
                         <div class="agent-role-badge">${agent.role.charAt(0).toUpperCase() + agent.role.slice(1)}</div>
+                        ${lockedOverlay}
                     </div>
                     <div class="agent-info">
                         <div class="agent-name">${agent.name}</div>
@@ -769,20 +1136,30 @@
                 
                 agentCards.forEach(card => {
                     card.addEventListener('click', () => {
+                        // Só permite clique em agentes desbloqueados
+                        if (card.dataset.unlocked === 'false') {
+                            // Efeito visual para agentes bloqueados
+                            card.style.animation = 'shake 0.5s ease-in-out';
+                            setTimeout(() => {
+                                card.style.animation = '';
+                            }, 500);
+                            return;
+                        }
+
                         agentCards.forEach(c => c.classList.remove('selected'));
                         card.classList.add('selected');
 
                         const name = card.querySelector('.agent-name').textContent;
                         const agent = agentsData.find(a => a.name === name);
 
-                        if (agent) {
+                        if (agent && agent.unlocked) {
                             metaTitle.textContent = agent.name;
                             metaDescription.textContent = agent.description;
 
                             statCards.forEach(statCard => {
                                 const statName = statCard.querySelector('.stat-name').textContent;
-                                const statValue = agent.stats[statName] || '-';
-                                statCard.querySelector('.stat-percentage').textContent = statValue;
+                                const statDescription = agent.stats[statName] || 'Informação não disponível';
+                                statCard.querySelector('.stat-role').textContent = statDescription;
                                 statCard.classList.add('unlocked');
                             });
                         }
@@ -856,29 +1233,47 @@
                 }
             });
 
-            // Create particles
+            // Create static particles (no animation)
             const particlesContainer = document.querySelector('.particles');
-            const particlesCount = 80;
+            const particlesCount = 50;
             
             for (let i = 0; i < particlesCount; i++) {
                 const particle = document.createElement('div');
                 particle.classList.add('particle');
                 particle.style.top = Math.random() * 100 + 'vh';
                 particle.style.left = Math.random() * 100 + 'vw';
-                particle.style.width = particle.style.height = Math.random() * 3 + 1 + 'px';
-                particle.style.animationDuration = 4 + Math.random() * 4 + 's';
-                particle.style.animationDelay = Math.random() * 2 + 's';
+                particle.style.width = particle.style.height = Math.random() * 2 + 1 + 'px';
                 particlesContainer.appendChild(particle);
             }
 
             // Initialize
             renderAgents();
             
-            // Auto-select first agent
+            // Play button functionality
+            const playButton = document.getElementById('playButton');
+            
+            playButton.addEventListener('click', () => {
+                // Adiciona efeito visual de clique
+                playButton.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    playButton.style.transform = '';
+                }, 150);
+                
+                // Simula ação de "jogar" - você pode personalizar esta ação
+                const selectedAgent = document.querySelector('.agent-card.selected:not(.locked)');
+                if (selectedAgent) {
+                    const agentName = selectedAgent.querySelector('.agent-name').textContent;
+                    alert(`Iniciando partida com ${agentName}! 🎮`);
+                } else {
+                    alert('Selecione um agente desbloqueado primeiro! ⚡');
+                }
+            });
+            
+            // Auto-select first unlocked agent
             setTimeout(() => {
-                const firstCard = document.querySelector('.agent-card');
-                if (firstCard) {
-                    firstCard.click();
+                const firstUnlockedCard = document.querySelector('.agent-card:not(.locked)');
+                if (firstUnlockedCard) {
+                    firstUnlockedCard.click();
                 }
             }, 100);
         });
