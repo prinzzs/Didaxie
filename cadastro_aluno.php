@@ -19,19 +19,6 @@ try {
         throw new Exception("Falha na conexão: " . $conn->connect_error);
     }
 
-    // Criar tabela alunos se não existir
-    $sql = "CREATE TABLE IF NOT EXISTS alunos (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(100) NOT NULL,
-        usuario VARCHAR(50) NOT NULL UNIQUE,
-        email VARCHAR(100) NOT NULL UNIQUE,
-        senha VARCHAR(255) NOT NULL,
-        data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )";
-    if (!$conn->query($sql)) {
-        throw new Exception("Erro ao criar tabela: " . $conn->error);
-    }
-
     // Processar cadastro
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $nome = trim($_POST['nome'] ?? '');

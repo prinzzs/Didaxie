@@ -1,5 +1,8 @@
 <?php
 session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // Configuração da conexão
 $servername = "localhost";
@@ -11,43 +14,13 @@ $message = "";
 $messageType = "";
 
 try {
-    // Criar conexão inicial sem banco
-    $conn = new mysqli($servername, $username, $password);
+    // Conectar direto ao banco já existente
+    $conn = new mysqli($servername, $username, $password, $dbname);
     
-    // Checar conexão
     if ($conn->connect_error) {
         throw new Exception("Falha na conexão: " . $conn->connect_error);
     }
-    
-    // Criar banco se não existir
-    $sql = "CREATE DATABASE IF NOT EXISTS $dbname CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
-    if (!$conn->query($sql)) {
-        throw new Exception("Erro ao criar banco: " . $conn->error);
-    }
-    
-    // Selecionar banco
-    $conn->select_db($dbname);
-    
-    // Criar tabela de professores se não existir
-    $sql = "CREATE TABLE IF NOT EXISTS professores (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(100) NOT NULL,
-        email VARCHAR(100) NOT NULL UNIQUE,
-        senha VARCHAR(255) NOT NULL,
-        ano ENUM(
-            '1º Ano Fundamental', '2º Ano Fundamental', '3º Ano Fundamental', 
-            '4º Ano Fundamental', '5º Ano Fundamental', '6º Ano Fundamental', 
-            '7º Ano Fundamental', '8º Ano Fundamental', '9º Ano Fundamental',
-            '1º Ano Ensino Médio', '2º Ano Ensino Médio', '3º Ano Ensino Médio',
-            'EJA'
-        ) NOT NULL,
-        data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )";
-    
-    if (!$conn->query($sql)) {
-        throw new Exception("Erro ao criar tabela: " . $conn->error);
-    }
-    
+
     // Processar cadastro
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (empty($_POST['nome']) || empty($_POST['email']) || empty($_POST['senha']) || empty($_POST['ano'])) {
@@ -167,7 +140,7 @@ try {
         <?php if (!empty($message)): ?>
             <div class="message <?php echo $messageType; ?>">
                 <?php echo htmlspecialchars($message); ?>
-            </div>
+            </div> 
         <?php endif; ?>
 
         <form method="POST" action="cadastro_professor.php">

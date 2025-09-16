@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS professores (
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL,
+    ano ENUM( '1º Ano Fundamental', '2º Ano Fundamental', '3º Ano Fundamental', '4º Ano Fundamental', '5º Ano Fundamental', '6º Ano Fundamental', '7º Ano Fundamental', '8º Ano Fundamental', '9º Ano Fundamental', '1º Ano Ensino Médio', '2º Ano Ensino Médio', '3º Ano Ensino Médio', 'EJA' ) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -48,7 +49,7 @@ CREATE TABLE IF NOT EXISTS turmas (
 
 CREATE TABLE IF NOT EXISTS alunos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    turma_id INT NOT NULL,
+    turma_id INT NULL,
     nome VARCHAR(100) NOT NULL,
     usuario VARCHAR(100) UNIQUE,
     email VARCHAR(100) UNIQUE NOT NULL,
