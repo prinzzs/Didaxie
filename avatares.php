@@ -592,7 +592,128 @@
         </div>
     </div>
 
-    <div class="particles"></div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const agentCards = document.querySelectorAll('.agent-card');
+    const metaTitle = document.querySelector('.meta-title');
+    const metaDescription = document.querySelector('.meta-description');
+    const statCards = document.querySelectorAll('.stat-card');
+
+    // Dados atualizados dos agentes
+    const agentsData = [
+        { name: 'Raze', role: 'Duelist', description: 'Explosiva e criativa, perfeita para iniciar confrontos.', stats: { 'KDA': '2.7', 'Win Rate': '55%', 'Headshot %': '48%' } },
+        { name: 'Jett', role: 'Duelist', description: 'Ágil e mortal, domina o campo com velocidade.', stats: { 'KDA': '2.9', 'Win Rate': '57%', 'Headshot %': '50%' } },
+        { name: 'Sage', role: 'Sentinel', description: 'Curadora e defensora, protege seu time com maestria.', stats: { 'KDA': '2.1', 'Win Rate': '52%', 'Headshot %': '42%' } },
+        { name: 'Cypher', role: 'Sentinel', description: 'Espião e estrategista, controla mapas com suas armadilhas.', stats: { 'KDA': '2.0', 'Win Rate': '50%', 'Headshot %': '40%' } },
+        { name: 'Viper', role: 'Controller', description: 'Especialista em controle de mapa com toxinas letais.', stats: { 'KDA': '2.3', 'Win Rate': '49%', 'Headshot %': '44%' } },
+        { name: 'Omen', role: 'Controller', description: 'Sombroso e imprevisível, manipula o campo a seu favor.', stats: { 'KDA': '2.2', 'Win Rate': '48%', 'Headshot %': '43%' } },
+        { name: 'Sova', role: 'Initiator', description: 'Rastreador preciso, prepara emboscadas e revela inimigos.', stats: { 'KDA': '2.4', 'Win Rate': '51%', 'Headshot %': '46%' } },
+        { name: 'Breach', role: 'Initiator', description: 'Força bruta e precisão, abre caminho para seu time.', stats: { 'KDA': '2.3', 'Win Rate': '50%', 'Headshot %': '45%' } }
+    ];
+
+    // Atualizar os cards da página com novos dados
+    agentCards.forEach((card, index) => {
+        const agent = agentsData[index % agentsData.length]; // Cicla caso tenha mais cards que agentes
+        card.querySelector('.agent-name').textContent = agent.name;
+        card.querySelector('.agent-subtitle').textContent = agent.role;
+        card.querySelector('.agent-role-badge').textContent = agent.role;
+        card.querySelector('.agent-portrait').src = `https://via.placeholder.com/300x400?text=${encodeURIComponent(agent.name)}`;
+        card.querySelector('.agent-portrait').alt = agent.name;
+    });
+
+    // Filtrar agentes
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const filter = tab.textContent.toLowerCase();
+
+            agentCards.forEach(card => {
+                const role = card.querySelector('.agent-role-badge').textContent.toLowerCase();
+                if (filter === 'all' || role === filter) {
+                    card.style.display = 'block';
+                    card.style.opacity = 0;
+                    setTimeout(() => card.style.opacity = 1, 50);
+                } else {
+                    card.style.opacity = 0;
+                    setTimeout(() => card.style.display = 'none', 300);
+                }
+            });
+        });
+    });
+
+    // Selecionar agente e atualizar stats
+    agentCards.forEach(card => {
+        card.addEventListener('click', () => {
+            agentCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+
+            const name = card.querySelector('.agent-name').textContent;
+            const agent = agentsData.find(a => a.name === name);
+
+            if (agent) {
+                metaTitle.textContent = agent.name;
+                metaDescription.textContent = agent.description;
+
+                statCards.forEach(statCard => {
+                    const statName = statCard.querySelector('.stat-name').textContent;
+                    const statValue = agent.stats[statName] || '-';
+                    statCard.querySelector('.stat-percentage').textContent = statValue;
+                });
+            }
+        });
+    });
+
+    // Criar partículas de fundo
+    const particlesContainer = document.querySelector('.particles');
+    const particlesCount = 80;
+    for (let i = 0; i < particlesCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.top = Math.random() * 100 + 'vh';
+        particle.style.left = Math.random() * 100 + 'vw';
+        particle.style.width = particle.style.height = Math.random() * 3 + 1 + 'px';
+        particle.style.animationDuration = 4 + Math.random() * 4 + 's';
+        particlesContainer.appendChild(particle);
+    }
+
+    // Busca por nome
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Buscar agente...';
+    searchInput.style.marginLeft = '1rem';
+    searchInput.style.padding = '0.3rem 0.6rem';
+    searchInput.style.borderRadius = '6px';
+    searchInput.style.border = '1px solid rgba(255,255,255,0.2)';
+    searchInput.style.background = 'rgba(255,255,255,0.05)';
+    searchInput.style.color = 'white';
+    searchInput.style.outline = 'none';
+    document.querySelector('.header').appendChild(searchInput);
+
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase();
+        agentCards.forEach(card => {
+            const name = card.querySelector('.agent-name').textContent.toLowerCase();
+            if (name.includes(query)) {
+                card.style.display = 'block';
+                card.style.opacity = 0;
+                setTimeout(() => card.style.opacity = 1, 50);
+            } else {
+                card.style.opacity = 0;
+                setTimeout(() => card.style.display = 'none', 300);
+            }
+        });
+    });
+
+    // Seleciona automaticamente o primeiro agente
+    if(agentCards.length > 0) {
+        agentCards[0].click();
+    }
+});
+</script>
+
 
     </body>
     </html>
