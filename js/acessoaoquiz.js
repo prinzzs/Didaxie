@@ -1,5 +1,4 @@
 // Senha correta (em uma aplicação real, isso seria validado no backend)
-        const correctPassword = "quiz2024";
         let isLoading = false;
 
         // Elementos do DOM
@@ -73,7 +72,7 @@
                 if (data.ok) {
                     showSuccess();
                     setTimeout(() => {
-                        window.location.href = `quiz_page.php?codigo=${data.codigo}`;
+                        window.location.href = `cadastro_aluno.php?codigo=${data.codigo}`;
                     }, 1000);
                 } else {
                     showError(data.error || 'Código inválido');
@@ -125,8 +124,7 @@
         // Função para iniciar o quiz
         function startQuiz() {
             alert("Iniciando o quiz...");
-            // Aqui você redirecionaria para a página do quiz
-            // window.location.href = "quiz.html";
+            window.location.href = `cadastro_aluno.php?codigo=${data.codigo}`;
         }
 
         // Foco inicial no campo de senha
