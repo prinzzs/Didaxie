@@ -11,43 +11,14 @@ $message = "";
 $messageType = "";
 
 try {
-    // Criar conexão inicial sem banco
-    $conn = new mysqli($servername, $username, $password);
-    
-    // Checar conexão
+    // Conectar já no banco existente
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn->set_charset("utf8mb4");
+
     if ($conn->connect_error) {
         throw new Exception("Falha na conexão: " . $conn->connect_error);
     }
-    
-    // Criar banco se não existir
-    $sql = "CREATE DATABASE IF NOT EXISTS $dbname";
-    if (!$conn->query($sql)) {
-        throw new Exception("Erro ao criar banco: " . $conn->error);
-    }
-    
-    // Selecionar banco
-    $conn->select_db($dbname);
-    
-    // Criar tabela de professores se não existir (igual ao cadastro)
-    $sql = "CREATE TABLE IF NOT EXISTS professores (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(100) NOT NULL,
-        email VARCHAR(100) NOT NULL UNIQUE,
-        senha VARCHAR(255) NOT NULL,
-        ano ENUM(
-            '1º Ano Fundamental', '2º Ano Fundamental', '3º Ano Fundamental', 
-            '4º Ano Fundamental', '5º Ano Fundamental', '6º Ano Fundamental', 
-            '7º Ano Fundamental', '8º Ano Fundamental', '9º Ano Fundamental',
-            '1º Ano Ensino Médio', '2º Ano Ensino Médio', '3º Ano Ensino Médio',
-            'EJA'
-        ) NOT NULL,
-        data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )";
-    
-    if (!$conn->query($sql)) {
-        throw new Exception("Erro ao criar tabela: " . $conn->error);
-    }
-    
+
     // Processar login
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Validar se todos os campos foram preenchidos
@@ -63,7 +34,7 @@ try {
             throw new Exception("Email inválido!");
         }
 
-        // Buscar professor no banco (incluindo o campo ano que foi salvo no cadastro)
+        // Buscar professor no banco
         $stmt = $conn->prepare("SELECT id, nome, email, senha, ano FROM professores WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -81,8 +52,7 @@ try {
                 $_SESSION['professor_ano'] = $user['ano'];
                 $_SESSION['tipo'] = "professor";
 
-
-                // Redirecionar para a página inicial do professor
+                // Redirecionar para o painel
                 header("Location: painel_professor.php");
                 exit();
             } else {
@@ -91,10 +61,10 @@ try {
         } else {
             throw new Exception("Email não cadastrado!");
         }
-        
+
         $stmt->close();
     }
-    
+
 } catch (Exception $e) {
     $message = $e->getMessage();
     $messageType = "error";

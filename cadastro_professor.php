@@ -16,7 +16,7 @@ $messageType = "";
 try {
     // Conectar direto ao banco já existente
     $conn = new mysqli($servername, $username, $password, $dbname);
-    
+    $conn->set_charset("utf8mb4");
     if ($conn->connect_error) {
         throw new Exception("Falha na conexão: " . $conn->connect_error);
     }
@@ -61,11 +61,17 @@ try {
         $stmt = $conn->prepare("INSERT INTO professores (nome, email, senha, ano) VALUES (?, ?, ?, ?)");
         $stmt->bind_param("ssss", $nome, $email, $senhaHash, $ano);
         if ($stmt->execute()) {
+            if ($conn->warning_count > 0) {
+                $warn = $conn->get_warnings();
+                throw new Exception("Cadastro inserido, mas com aviso: " . $warn->message);
+            }
             $message = "Cadastro realizado com sucesso!";
             $messageType = "success";
         } else {
-            throw new Exception("Erro ao cadastrar: " . $stmt->error);
+            throw new Exception("Erro ao cadastrar: " . $stmt->error . " | SQLSTATE: " . $stmt->sqlstate);
         }
+
+
         $stmt->close();
     }
     
