@@ -192,12 +192,13 @@ session_start();
                                 <th>Tentativas</th>
                                 <th>Taxa de Sucesso</th>
                                 <th>Status</th>
+                                <th>Código</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="quizzesTableBody">
                             <tr>
-                                <td colspan="7" class="loading">Carregando dados...</td>
+                                <td colspan="8" class="loading">Carregando dados...</td>
                             </tr>
                         </tbody>
                     </table>

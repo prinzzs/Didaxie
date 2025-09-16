@@ -302,6 +302,7 @@
                         <td>${q.tentativas ?? 0}</td>
                         <td>${(q.taxa_sucesso ?? 0)}%</td>
                         <td><span class="badge ${q.status==='publicado'?'badge-success':'badge-secondary'}">${q.status}</span></td>
+                        <td>${(q.codigo ?? null)}</td>
                         <td>
                             <button class="btn btn-sm btn-secondary" disabled>Abrir</button>
                         </td>
