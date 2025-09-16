@@ -926,7 +926,7 @@
                     stats: { 
                         'Força': 'Alto poder de fogo direto',
                         'Defesa': 'Foca em esquiva rápida',
-                        'Agilidade': 'Extremamente móvel'
+                        'Agilidade': 'Extremamente veloz'
                     }
                 },
                 { 
@@ -948,7 +948,7 @@
                     stats: { 
                         'Força': 'Controle tático do mapa',
                         'Defesa': 'Bloqueios estratégicos',
-                        'Agilidade': 'Teleporte instantâneo'
+                        'Agilidade': 'Teleporte'
                     }
                 },
                 { 
@@ -958,7 +958,7 @@
                     description: 'Caçador russo expert, Sova revela inimigos com precisão cirúrgica. Suas flechas de reconhecimento são legendárias.',
                     stats: { 
                         'Força': 'Precisão devastadora',
-                        'Defesa': 'Informação como escudo',
+                        'Defesa': 'Escudo tecnologico',
                         'Agilidade': 'Movimento tático'
                     }
                 },
