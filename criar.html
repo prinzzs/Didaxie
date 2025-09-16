@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Criar Caça-Palavras - Professor</title>
+<link rel="stylesheet" href="css/criar.css">
+</head>
+<body>
+
+<h1>Professor — Criar Caça-Palavras</h1>
+
+<p>Adicione até <strong>9</strong> palavras (uma por bloco) com descrição. Acentos e símbolos serão removidos.</p>
+
+<form id="createForm">
+  <label>Tamanho do tabuleiro (fixo)</label>
+  <input type="text" value="15 x 15" disabled>
+  <div id="wordsContainer"></div>
+
+  <div style="margin-top:12px">
+    <button type="button" id="addWordBtn">Adicionar palavra</button>
+    <button type="submit">Gerar e Exportar JSON</button>
+  </div>
+</form>
+
+<div id="message" style="display:none;margin-top:12px;"></div>
+
+<!-- modal -->
+<div id="modalMessage" aria-hidden="true"><div id="modalContent"><div id="modalText"></div><button onclick="closeModal()">Fechar</button></div></div>
+
+<script src="js/criar.js"></script>
+</body>
+</html>

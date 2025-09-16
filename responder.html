@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Responder Caça-Palavras - Aluno</title>
+<link rel="stylesheet" href="css/responder.css">
+</head>
+<body>
+
+<h1>Aluno — Resolver Caça-Palavras</h1>
+
+<p>Importe o arquivo JSON gerado pelo professor:</p>
+<input type="file" id="jsonInput" accept=".json" />
+<button id="startBtn" type="button">Iniciar Atividade</button>
+
+<div id="timer">Tempo: 03:30</div>
+
+<div id="controls" style="margin-top:10px">
+  <button id="btnPause">Pause (3)</button>
+  <button id="btnUnlimited">Tempo Ilimitado</button>
+  <button id="btnHelp">Ajuda</button>
+  <button id="btnRestart" style="background:#9b59b6;color:#000;">Reiniciar</button>
+</div>
+
+<div id="messageHelp" style="display:none;margin-top:10px;border:1px solid rgba(155,89,182,0.12);padding:10px;border-radius:6px;">
+  <strong>Como jogar:</strong>
+  <p>Clique e arraste (em linha reta) para selecionar palavra. Quando achar, a descrição será riscada. Pause até 3x ou ative tempo ilimitado (pontuação 25).</p>
+</div>
+
+<h3>Descrições</h3>
+<ul id="descriptionList"></ul>
+
+<div id="board"></div>
+
+<div id="result" style="margin-top:14px;font-weight:700;"></div>
+
+<!-- modal -->
+<div id="modalMessage" aria-hidden="true"><div id="modalContent"><div id="modalText"></div><button onclick="closeModal()">Fechar</button></div></div>
+
+<script src="js/responder.js"></script>
+</body>
+</html>

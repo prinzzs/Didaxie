@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #9333ff; /* Roxo vibrante */
+  font-family: 'Roboto Mono', monospace;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.coluna-esquerda {
+  font-family: Monument;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  color: transparent;
+  font-size: 88px;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #000;
+      
+    }
+
+    .container-cards {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 40px;
+      position: relative;
+    }
+
+    .card-avatar {
+      background-color: black;
+      width: 250px;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .texto-card {
+      position: absolute;
+      top: 20px;
+      left: -60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: rotate(-90deg);
+      transform-origin: left top;
+    }
+
+    .texto-card p.pais {
+      color: #b39ddb;
+      font-size: 14px;
+      margin: 0 0 10px 0;
+    }
+
+    .texto-card p.nome {
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0;
+      -webkit-text-stroke: 1.5px black;
+    }
+
+    .imagem-card {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .imagem-card img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+    }
+
+    body::after {
+      content: "➔";
+      position: absolute;
+      right: 40px;
+      bottom: 40px;
+      font-size: 48px;
+      color: white;
+      transform: rotate(-45deg);
+    }
+
+

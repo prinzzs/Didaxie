@@ -1,0 +1,13 @@
+@font-face {
+    font-family: Monument;
+    src: url('../fontes/Monument.otf') format('truetype');
+  }
+
+@font-face {
+    font-family: Exo2;
+    src: url('../fontes/Exo2.ttf') format('truetype');
+  }
+@font-face {
+    font-family: Alef;
+    src: url('../fontes/Alef-Regular.ttf') format('truetype');
+  }
