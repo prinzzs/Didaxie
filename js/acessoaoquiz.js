@@ -46,30 +46,47 @@
         });
 
         // Função para lidar com o submit
-        function handleSubmit() {
+        async function handleSubmit() {
             if (isLoading) return;
 
             const password = passwordInput.value.trim();
-            
             if (!password) {
-                showError("Por favor, digite a senha.");
+                showError("Digite o código do quiz.");
                 return;
             }
 
             setLoading(true);
             hideError();
 
-            // Simula delay de validação
-            setTimeout(() => {
-                if (password === correctPassword) {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'verify_quiz_code'); // nova ação
+                formData.append('codigo', password);
+
+                const response = await fetch('api.php', { 
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.ok) {
                     showSuccess();
+                    setTimeout(() => {
+                        window.location.href = `quiz_page.php?codigo=${data.codigo}`;
+                    }, 1000);
                 } else {
-                    showError("Senha incorreta. Tente novamente.");
-                    passwordInput.value = "";
+                    showError(data.error || 'Código inválido');
+                    passwordInput.value = '';
                     passwordInput.focus();
                 }
+
+            } catch (err) {
+                showError('Erro de conexão com o servidor.');
+                console.error(err);
+            } finally {
                 setLoading(false);
-            }, 1000);
+            }
         }
 
         // Função para mostrar estado de loading

@@ -172,6 +172,27 @@ try {
             }
             break;
 
+            case 'verify_quiz_code':
+                $codigo = trim($_POST['codigo'] ?? '');
+
+                if ($codigo === '') {
+                    json_response(['ok' => false, 'error' => 'Código não informado']);
+                }
+
+                // Busca o quiz pelo código
+                $stmt = $mysqli->prepare("SELECT codigo FROM quizzes WHERE codigo = ? LIMIT 1");
+                $stmt->bind_param('s', $codigo);
+                $stmt->execute();
+                $res = $stmt->get_result();
+
+                if ($res->num_rows > 0) {
+                    $row = $res->fetch_assoc();
+                    json_response(['ok' => true, 'codigo' => $row['codigo']]);
+                } else {
+                    json_response(['ok' => false, 'error' => 'Código do quiz inválido']);
+                }
+                break;
+
         case 'gerar_quiz':
             if (!isset($_SESSION['professor_id'])) {
                 echo json_encode(['ok' => false, 'error' => 'Sessão inválida']);
@@ -189,25 +210,25 @@ try {
 
 
         case 'create_quiz':
-    $pid = require_login();
-    $titulo = trim($_POST['titulo'] ?? '');
-    $codigo = trim($_POST['codigo'] ?? '');
-    $categoria = trim($_POST['categoria'] ?? '');
+            $pid = require_login();
+            $titulo = trim($_POST['titulo'] ?? '');
+            $codigo = trim($_POST['codigo'] ?? '');
+            $categoria = trim($_POST['categoria'] ?? '');
 
-    if ($titulo === '' || $codigo === '' || $categoria === '') {
-        json_response(['ok' => false, 'error' => 'Preencha todos os campos']);
-    }
+            if ($titulo === '' || $codigo === '' || $categoria === '') {
+                json_response(['ok' => false, 'error' => 'Preencha todos os campos']);
+            }
 
-    $stmt = $mysqli->prepare("INSERT INTO quizzes (professor_id, codigo, titulo, categoria, status, criado_em) 
-                              VALUES (?, ?, ?, ?, 'publicado', NOW())");
-    $stmt->bind_param('isss', $pid, $codigo, $titulo, $categoria);
+            $stmt = $mysqli->prepare("INSERT INTO quizzes (professor_id, codigo, titulo, categoria, status, criado_em) 
+                                    VALUES (?, ?, ?, ?, 'publicado', NOW())");
+            $stmt->bind_param('isss', $pid, $codigo, $titulo, $categoria);
 
-    if ($stmt->execute()) {
-        json_response(['ok' => true, 'id' => $stmt->insert_id]);
-    } else {
-        json_response(['ok' => false, 'error' => 'Erro ao salvar quiz']);
-    }
-    break;
+            if ($stmt->execute()) {
+                json_response(['ok' => true, 'id' => $stmt->insert_id]);
+            } else {
+                json_response(['ok' => false, 'error' => 'Erro ao salvar quiz']);
+            }
+            break;
 
 
         case 'list_quizzes':
