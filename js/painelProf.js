@@ -309,20 +309,89 @@
                 `).join('');
             },
 
-            redirectToQuizCreator() {
-                // ajuste o caminho conforme seu projeto
-                window.location.href = 'criar_quiz.html';
-            },
+                // painelProf.js - Seção atualizada do gerarQuiz
 
-            // ===== Inicialização =====
-            async init() {
-                const ok = await this.initMe();
-                if (!ok) return;
-                this.initFormTurma();
-                this.initFormAluno();
-                this.loadDashboard();
-                // pré-carrega turmas/alunos quando usuário abrir as seções
+    gerarQuiz: async function() {
+        const r = await admin.api('gerar_quiz');
+        if (r.ok) {
+            // Cria/atualiza um span do lado do painel com o código
+            let box = document.getElementById('quizCodigoBox');
+            if (!box) {
+                box = document.createElement('div');
+                box.id = 'quizCodigoBox';
+                box.style.marginTop = '15px';
+                box.style.fontSize = '18px';
+                box.style.fontWeight = 'bold';
+                document.getElementById('quizzes').querySelector('.section-header').appendChild(box);
             }
+            box.innerHTML = `
+                📌 Código do Quiz: <span style='color:green'>${r.codigo}</span>
+                <br>
+                <button class="btn btn-success" style="margin-top: 10px;" onclick="admin.confirmarQuiz('${r.codigo}')">
+                    Confirmar Quiz
+                </button>
+            `;
+            
+            // Armazena o código temporariamente
+            this._quizCodigoTemp = r.codigo;
+        } else {
+            alert("Erro ao gerar quiz: " + r.error);
+        }
+    },
+
+    // Nova função para confirmar quiz
+    confirmarQuiz: function(codigo) {
+        // Armazena o código no modal
+        document.getElementById('quizCodigo').value = codigo;
+        this.showModal('modalConfirmarQuiz');
+    },
+
+    // Form Confirmar Quiz
+    initFormConfirmarQuiz: function() {
+        const form = $('#formConfirmarQuiz');
+        if (!form) return;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                titulo: $('#tituloQuiz').value.trim(),
+                codigo: $('#quizCodigo').value.trim(),
+                categoria: $('#categoriaQuiz').value.trim()
+            };
+            
+            if (!payload.titulo) {
+                this.toast('Digite um título para o quiz', 'error');
+                return;
+            }
+            
+            const res = await this.api('create_quiz', payload, 'POST');
+            if (!res.ok) {
+                this.toast(res.error || 'Erro ao criar quiz', 'error');
+                return;
+            }
+            
+            this.toast('Quiz criado com sucesso!', 'success');
+            this.closeModal('modalConfirmarQuiz');
+            form.reset();
+            
+            // Remove a caixa do código
+            const box = document.getElementById('quizCodigoBox');
+            if (box) box.remove();
+            
+            // Recarrega a lista de quizzes
+            this.loadQuizzes();
+            this.loadDashboard();
+        });
+    },
+
+    // Atualizar a função init para incluir o novo form
+    async init() {
+        const ok = await this.initMe();
+        if (!ok) return;
+        this.initFormTurma();
+        this.initFormAluno();
+        this.initFormConfirmarQuiz(); // Nova linha
+        this.loadDashboard();
+    }
         };
 
         // Expor no global para onclicks do HTML

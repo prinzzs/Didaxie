@@ -169,9 +169,8 @@ session_start();
                 <div id="quizzes" class="section">
                     <div class="section-header">
                         <h2 class="section-title">Meus Quizzes</h2>
-                        <button class="btn" onclick="admin.redirectToQuizCreator()">
-                            ➕ Criar Quiz
-                        </button>
+                        <button class="btn" onclick="admin.gerarQuiz()">Gerar Quiz</button>
+                        <div id="quizCodigoBox"></div>
                     </div>
 
                     <div class="search-bar">
@@ -321,6 +320,41 @@ session_start();
             </div>
         </div>
     </div>
+
+        <!-- Modal Confirmar Quiz -->
+    <div id="modalConfirmarQuiz" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Quiz</h3>
+                <button class="close-btn" onclick="admin.closeModal('modalConfirmarQuiz')">&times;</button>
+            </div>
+            
+            <form id="formConfirmarQuiz">
+                <input type="hidden" id="quizCodigo">
+                
+                <div class="form-group">
+                    <label class="form-label">Título do Quiz *</label>
+                    <input type="text" class="form-input" id="tituloQuiz" required placeholder="Ex: Quiz de Matemática Básica">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Categoria *</label>
+                    <select class="form-select" id="categoriaQuiz" required>
+                        <option value="">Selecione...</option>
+                        <option value="historia">História</option>
+                        <option value="matematica">Matemática</option>
+                        <option value="ciencias">Ciências</option>
+                    </select>
+                </div>
+                
+                <div style="text-align: right; gap: 10px; display: flex; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="admin.closeModal('modalConfirmarQuiz')">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Salvar Quiz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <script src="./js/painelProf.js"></script>
     <script>
