@@ -48,17 +48,13 @@
             async initMe() {
                 const res = await this.api('me', {}, 'GET').catch(() => null);
                 if (!res || !res.ok) {
-                    this.toast('Faça login para acessar o painel.', 'warn');
+                    window.location.href = 'login_professor.php';
                     return false;
                 }
-                const me = res.me;
-                $('#professorName').textContent = me.nome || 'Professor(a)';
-                $('#professorEmail').textContent = me.email || '';
-                const avatar = (me.avatar || '').trim();
-                const inicial = (me.nome || 'P').trim().charAt(0).toUpperCase();
-                $('#userAvatar').textContent = inicial;
+                this.user = res.user;
                 return true;
             },
+
 
             async logout() {
                 await this.api('logout', {}, 'POST');

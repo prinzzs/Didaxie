@@ -181,7 +181,7 @@ try {
             <button type="submit">Cadastrar</button>
         </form>
 
-        <p class="login-link" onclick="window.location.href='login.php'">JÁ TENHO UMA CONTA</p>
+        <p class="login-link" onclick="window.location.href='login_professor.php'">JÁ TENHO UMA CONTA</p>
     </div>
 </body>
 </html>

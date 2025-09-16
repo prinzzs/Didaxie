@@ -241,9 +241,24 @@ try {
             break;
 
         case 'logout':
-            session_destroy();
-            json_response(['ok' => true, 'message' => 'Logout realizado']);
-            break;
+    // Limpar array de sessão
+    $_SESSION = [];
+
+    // Apagar cookie de sessão, se existir
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+
+    // Destruir a sessão
+    session_destroy();
+
+    json_response(['ok' => true, 'message' => 'Logout realizado']);
+    break;
+
 
         default:
             json_response(['ok' => false, 'error' => 'Ação inválida']);
