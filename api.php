@@ -29,6 +29,20 @@ function require_login() {
     return (int)$_SESSION['professor_id'];
 }
 
+function gerarCodigoUnico($mysqli) {
+    do {
+        $codigo = strtoupper(substr(md5(uniqid((string)rand(), true)), 0, 6));
+
+        $check = $mysqli->prepare("SELECT id FROM quizzes WHERE codigo = ? LIMIT 1");
+        $check->bind_param('s', $codigo);
+        $check->execute();
+        $check->store_result();
+    } while ($check->num_rows > 0);
+
+    return $codigo;
+}
+
+
 // ================== ROTAS ==================
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
@@ -195,40 +209,42 @@ try {
                 break;
 
         case 'gerar_quiz':
-            if (!isset($_SESSION['professor_id'])) {
-                echo json_encode(['ok' => false, 'error' => 'Sessão inválida']);
-                exit;
+        if (!isset($_SESSION['professor_id'])) {
+            echo json_encode(['ok' => false, 'error' => 'Sessão inválida']);
+            exit;
+        }
+
+        // Agora sempre vem único
+        $codigo = gerarCodigoUnico($mysqli);
+
+        echo json_encode([
+            'ok' => true,
+            'codigo' => $codigo
+        ]);
+        break;
+
+    case 'create_quiz':
+        $pid = require_login();
+        $titulo = trim($_POST['titulo'] ?? '');
+        $codigo = trim($_POST['codigo'] ?? '');
+        $categoria = trim($_POST['categoria'] ?? '');
+
+        if ($titulo === '' || $codigo === '' || $categoria === '') {
+            json_response(['ok' => false, 'error' => 'Preencha todos os campos']);
+        }
+
+        $stmt = $mysqli->prepare("INSERT INTO quizzes (professor_id, codigo, titulo, categoria, status, criado_em) 
+                                VALUES (?, ?, ?, ?, 'publicado', NOW())");
+        $stmt->bind_param('isss', $pid, $codigo, $titulo, $categoria);
+
+        if ($stmt->execute()) {
+            json_response(['ok' => true, 'id' => $stmt->insert_id]);
+        } else {
+            if ($mysqli->errno === 1062) { // código duplicado (caso alguém tente forçar)
+                json_response(['ok' => false, 'error' => 'Código já existe, gere outro']);
             }
-
-            // Gera código único (6 caracteres alfanuméricos)
-            $codigo = strtoupper(substr(md5(uniqid((string)rand(), true)), 0, 6));
-
-            echo json_encode([
-                'ok' => true,
-                'codigo' => $codigo
-            ]);
-            break;
-
-
-        case 'create_quiz':
-            $pid = require_login();
-            $titulo = trim($_POST['titulo'] ?? '');
-            $codigo = trim($_POST['codigo'] ?? '');
-            $categoria = trim($_POST['categoria'] ?? '');
-
-            if ($titulo === '' || $codigo === '' || $categoria === '') {
-                json_response(['ok' => false, 'error' => 'Preencha todos os campos']);
-            }
-
-            $stmt = $mysqli->prepare("INSERT INTO quizzes (professor_id, codigo, titulo, categoria, status, criado_em) 
-                                    VALUES (?, ?, ?, ?, 'publicado', NOW())");
-            $stmt->bind_param('isss', $pid, $codigo, $titulo, $categoria);
-
-            if ($stmt->execute()) {
-                json_response(['ok' => true, 'id' => $stmt->insert_id]);
-            } else {
-                json_response(['ok' => false, 'error' => 'Erro ao salvar quiz']);
-            }
+            json_response(['ok' => false, 'error' => 'Erro ao salvar quiz']);
+        }
             break;
 
 
