@@ -5,7 +5,7 @@ declare(strict_types=1);
 // CONFIG BANCO
 $DB_HOST = 'localhost';
 $DB_USER = 'root';
-$DB_PASS = 'usbw';
+$DB_PASS = '';
 $DB_NAME = 'didaxie';
 
 // Conecta no MySQL (sem selecionar DB ainda)

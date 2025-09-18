@@ -4,7 +4,7 @@ session_start();
 // Configuração da conexão
 $servername = "localhost";
 $username = "root";
-$password = "usbw";
+$password = "";
 $dbname = "didaxie";
 
 $codigo = $_GET['codigo'] ?? '';

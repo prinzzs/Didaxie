@@ -6,7 +6,7 @@ header('Content-Type: application/json; charset=utf-8');
 // ================== CONFIG BANCO ==================
 $DB_HOST = 'localhost';
 $DB_USER = 'root';
-$DB_PASS = 'usbw';
+$DB_PASS = '';
 $DB_NAME = 'didaxie';
 
 $mysqli = @new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);

@@ -3,7 +3,7 @@ declare(strict_types=1);
 session_start();
 $DB_HOST = 'localhost';
 $DB_USER = 'root';
-$DB_PASS = 'usbw';
+$DB_PASS = '';
 $DB_NAME = 'didaxie';
 
 // Conexão com MySQL

@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 // Configuração da conexão
 $servername = "localhost";
 $username = "root"; 
-$password = "usbw";     
+$password = "";     
 $dbname = "didaxie";
 
 $message = "";
