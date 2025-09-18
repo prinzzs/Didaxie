@@ -1,354 +1,433 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
 
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background: #121212;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
+/* --- 1. Variáveis de Cores (CSS Custom Properties) ---
+  Centralizar as cores aqui facilita a manutenção e a futura implementação 
+  do tema claro e do tema para professores. É uma prática de projetos escaláveis.
+*/
+:root {
+  /* Paleta Aluno (Roxo) */
+  --color-primary-dark: #5E42BD;
+  --color-primary-light: #732CDD;
+  --color-primary-glow: rgba(115, 44, 221, 0.4);
+  --color-primary-border: rgba(94, 66, 189, 0.3);
 
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 30%, rgba(94, 66, 189, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(115, 44, 221, 0.1) 0%, transparent 50%),
-                linear-gradient(135deg, rgba(94, 66, 189, 0.05) 0%, rgba(115, 44, 221, 0.05) 100%);
-            z-index: -2;
-        }
+  /* Paleta Neutra */
+  --color-background: #121212;
+  --color-surface: rgba(18, 18, 18, 0.95);
+  --color-text-primary: #EFEFF4;
+  --color-text-secondary: rgba(239, 239, 244, 0.7);
+  --color-text-tertiary: rgba(239, 239, 244, 0.5);
 
-        body::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 98px,
-                    rgba(94, 66, 189, 0.03) 100px
-                ),
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 98px,
-                    rgba(115, 44, 221, 0.03) 100px
-                );
-            z-index: -1;
-        }
+  /* Cores de Feedback */
+  --color-success: #4ade80;
+  --color-success-glow: rgba(74, 222, 128, 0.5);
+  --color-error: #ff6b6b;
+  --color-error-bg: rgba(220, 53, 69, 0.1);
+  --color-error-border: rgba(220, 53, 69, 0.3);
 
-        .container {
-            background: rgba(18, 18, 18, 0.95);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(94, 66, 189, 0.3);
-            border-radius: 16px;
-            padding: 40px;
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(94, 66, 189, 0.1),
-                inset 0 1px 0 rgba(239, 239, 244, 0.1);
-            position: relative;
-        }
+  /* Tipografia e Espaçamento */
+  --font-family-base: 'Rajdhani', sans-serif;
+  --border-radius: 16px;
+  --border-radius-small: 8px;
+}
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #5E42BD, #732CDD, #5E42BD);
-            border-radius: 16px 16px 0 0;
-        }
+/* --- 2. Reset e Base ---
+  Uma base sólida para garantir consistência entre navegadores.
+*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-        .icon-container {
-            margin-bottom: 24px;
-            position: relative;
-        }
+html {
+  /* Melhora a fluidez da rolagem */
+  scroll-behavior: smooth;
+}
 
-        .lock-icon {
-            width: 64px;
-            height: 64px;
-            color: #732CDD;
-            filter: drop-shadow(0 0 20px rgba(115, 44, 221, 0.5));
-            animation: pulse 2s infinite;
-        }
+body {
+  font-family: var(--font-family-base);
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  /* Adicionado padding para telas menores */
+  padding: 20px;
+}
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
+/* --- 3. Efeitos de Fundo (Background) ---
+  Mantidos, pois são um detalhe visual excelente.
+*/
+body::before, body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Garante que não interfira com cliques */
+}
 
-        h1 {
-            color: #EFEFF4;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 20px rgba(115, 44, 221, 0.3);
-        }
+body::before {
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(94, 66, 189, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(115, 44, 221, 0.1) 0%, transparent 50%),
+    linear-gradient(135deg, rgba(94, 66, 189, 0.05) 0%, rgba(115, 44, 221, 0.05) 100%);
+  z-index: -2;
+}
 
-        .subtitle {
-            color: rgba(239, 239, 244, 0.7);
-            font-size: 1.1rem;
-            font-weight: 400;
-            margin-bottom: 32px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+body::after {
+  background-image: 
+    repeating-linear-gradient(90deg, transparent, transparent 98px, rgba(94, 66, 189, 0.03) 100px),
+    repeating-linear-gradient(0deg, transparent, transparent 98px, rgba(115, 44, 221, 0.03) 100px);
+  z-index: -1;
+}
 
-        .form-group {
-            margin-bottom: 24px;
-            text-align: left;
-        }
+/* --- 4. Container Principal ---
+  O card central.
+*/
+.container {
+  background: var(--color-surface);
+  backdrop-filter: blur(20px);
+  border: 2px solid var(--color-primary-border);
+  border-radius: var(--border-radius);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(94, 66, 189, 0.1),
+    inset 0 1px 0 rgba(239, 239, 244, 0.1);
+  position: relative;
+}
 
-        label {
-            display: block;
-            color: #EFEFF4;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary-light), var(--color-primary-dark));
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
 
-        .password-container {
-            position: relative;
-        }
+/* --- 5. Elementos da UI ---
+  Estilização dos componentes internos do card.
+*/
+.icon-container {
+  margin-bottom: 24px;
+}
 
-        input[type="password"], input[type="text"] {
-            width: 100%;
-            background: rgba(18, 18, 18, 0.8);
-            border: 2px solid rgba(94, 66, 189, 0.3);
-            border-radius: 8px;
-            padding: 16px 50px 16px 16px;
-            color: #EFEFF4;
-            font-size: 1rem;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            outline: none;
-        }
+.lock-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--color-primary-light);
+  filter: drop-shadow(0 0 20px var(--color-primary-glow));
+  animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
 
-        input:focus {
-            border-color: #732CDD;
-            box-shadow: 
-                0 0 0 3px rgba(115, 44, 221, 0.2),
-                0 0 20px rgba(115, 44, 221, 0.3);
-        }
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
 
-        input::placeholder {
-            color: rgba(239, 239, 244, 0.4);
-        }
+h1 {
+  color: var(--color-text-primary);
+  font-size: 2.25rem; /* Levemente reduzido para melhor encaixe */
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px var(--color-primary-glow);
+}
 
-        .eye-button {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  font-weight: 400;
+  margin-bottom: 32px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
-        .eye-button:hover {
-            background: rgba(94, 66, 189, 0.2);
-        }
+.form-group {
+  margin-bottom: 24px;
+  text-align: left;
+}
 
-        .eye-icon {
-            width: 20px;
-            height: 20px;
-            color: rgba(239, 239, 244, 0.6);
-            transition: color 0.3s ease;
-        }
+label {
+  display: block;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
-        .eye-button:hover .eye-icon {
-            color: #732CDD;
-        }
+.password-container {
+  position: relative;
+}
 
-        .error-message {
-            display: none;
-            background: rgba(220, 53, 69, 0.1);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            color: #ff6b6b;
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-align: left;
-            align-items: center;
-            gap: 8px;
-        }
+input[type="password"], input[type="text"] {
+  width: 100%;
+  background: rgba(18, 18, 18, 0.8);
+  border: 2px solid var(--color-primary-border);
+  border-radius: var(--border-radius-small);
+  padding: 16px 50px 16px 16px;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-family: var(--font-family-base);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  outline: none;
+}
 
-        .error-message.show {
-            display: flex;
-            animation: slideIn 0.3s ease;
-        }
+input:focus {
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 3px rgba(115, 44, 221, 0.2), 0 0 20px var(--color-primary-glow);
+}
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+input::placeholder {
+  color: rgba(239, 239, 244, 0.4);
+}
 
-        .error-icon {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
-        }
+.eye-button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
 
-        .submit-btn, .start-quiz-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #5E42BD 0%, #732CDD 100%);
-            border: none;
-            border-radius: 8px;
-            padding: 16px 24px;
-            color: #EFEFF4;
-            font-size: 1.1rem;
-            font-weight: 600;
-            font-family: 'Rajdhani', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
+.eye-button:hover {
+  background: rgba(94, 66, 189, 0.2);
+}
 
-        .submit-btn::before, .start-quiz-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
+.eye-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
+}
 
-        .submit-btn:hover, .start-quiz-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 8px 25px rgba(115, 44, 221, 0.4),
-                0 0 20px rgba(115, 44, 221, 0.3);
-        }
+.eye-button:hover .eye-icon {
+  color: var(--color-primary-light);
+}
 
-        .submit-btn:hover::before, .start-quiz-btn:hover::before {
-            left: 100%;
-        }
+/* --- 6. Botões e Feedback ---
+*/
+.submit-btn, .start-quiz-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-light) 100%);
+  border: none;
+  border-radius: var(--border-radius-small);
+  padding: 16px 24px;
+  color: var(--color-text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: var(--font-family-base);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
 
-        .submit-btn:active, .start-quiz-btn:active {
-            transform: translateY(0);
-        }
+.submit-btn:hover, .start-quiz-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px var(--color-primary-glow), 0 0 20px var(--color-primary-glow);
+}
 
-        .help-text {
-            color: rgba(239, 239, 244, 0.5);
-            font-size: 0.9rem;
-            margin-top: 20px;
-            font-weight: 400;
-        }
+/* Melhorando o estado de foco para acessibilidade */
+.submit-btn:focus-visible, .start-quiz-btn:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+  box-shadow: 0 8px 25px var(--color-primary-glow), 0 0 20px var(--color-primary-glow);
+}
 
-        .success-screen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(18, 18, 18, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
+.submit-btn:active, .start-quiz-btn:active {
+  transform: translateY(0);
+}
 
-        .success-screen.show {
-            display: flex;
-            animation: fadeIn 0.5s ease;
-        }
+.submit-btn::before, .start-quiz-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+.submit-btn:hover::before, .start-quiz-btn:hover::before {
+  left: 100%;
+}
 
-        .success-container {
-            animation: slideUp 0.5s ease;
-        }
+.help-text {
+  color: var(--color-text-tertiary);
+  font-size: 0.9rem;
+  margin-top: 24px;
+  font-weight: 400;
+}
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+.error-message {
+  display: none; /* Inicia oculto */
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--border-radius-small);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  color: var(--color-error);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+  align-items: center;
+  gap: 10px;
+}
 
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            color: #4ade80;
-            margin-bottom: 24px;
-            filter: drop-shadow(0 0 20px rgba(74, 222, 128, 0.5));
-            animation: checkmark 0.6s ease 0.3s both;
-        }
+.error-message.show {
+  display: flex;
+  animation: slideIn 0.3s ease-out;
+}
 
-        @keyframes checkmark {
-            0% { transform: scale(0) rotate(45deg); }
-            50% { transform: scale(1.2) rotate(45deg); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-        .loading {
-            pointer-events: none;
-        }
+.error-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
 
-        .loading #btnText::after {
-            content: '';
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(239, 239, 244, 0.3);
-            border-radius: 50%;
-            border-top-color: #EFEFF4;
-            animation: spin 1s linear infinite;
-            margin-left: 8px;
-        }
+/* --- 7. Tela de Sucesso ---
+*/
+.success-screen {
+  display: none;
+  position: fixed;
+  inset: 0; /* Forma moderna de 'top, right, bottom, left: 0' */
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface);
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+.success-screen.show {
+  display: flex;
+  animation: fadeIn 0.5s ease;
+}
 
-        /* Responsive */
-        @media (max-width: 480px) {
-            .container {
-                margin: 20px;
-                padding: 32px 24px;
-                max-width: none;
-            }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-            h1 {
-                font-size: 2rem;
-            }
-        }
+.success-container {
+  animation: slideUp 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  color: var(--color-success);
+  margin-bottom: 24px;
+  filter: drop-shadow(0 0 20px var(--color-success-glow));
+  animation: checkmark 0.6s ease 0.3s both;
+}
+
+@keyframes checkmark {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+/* --- 8. Estado de Carregamento (Loading) ---
+*/
+.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+#btnText {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading #btnText::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(239, 239, 244, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--color-text-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- 9. Responsividade ---
+  Estratégia Mobile-First, mas aplicada ao seu código (Desktop-First).
+  Adicionei um breakpoint para tablets e refinei o de celulares.
+*/
+
+/* Para Tablets e telas menores */
+@media (max-width: 768px) {
+  .container {
+    padding: 32px;
+  }
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Para Celulares */
+@media (max-width: 480px) {
+  body {
+    /* Garante que o container não cole nas bordas */
+    padding: 16px; 
+    /* Permite que o conteúdo role se a tela for muito pequena */
+    align-items: flex-start; 
+    overflow-y: auto;
+  }
+  .container {
+    /* Remove a margem que você tinha, pois o padding do body já cuida disso */
+    margin: 0; 
+    padding: 32px 24px;
+    max-width: 100%; /* Ocupa a largura disponível */
+  }
+  h1 {
+    font-size: 1.75rem;
+  }
+  .subtitle {
+    font-size: 0.9rem;
+  }
+  .submit-btn, .start-quiz-btn {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+}

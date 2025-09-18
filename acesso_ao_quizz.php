@@ -46,7 +46,7 @@
         </button>
 
         <p class="help-text">
-            Não possui a senha? Entre em contato com o administrador.
+            Não possui a senha? Entre em contato com o seu professor.
         </p>
     </div>
 
