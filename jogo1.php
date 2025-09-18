@@ -1,3 +1,73 @@
+<?php
+session_start();
+$DB_HOST = 'localhost';
+$DB_USER = 'root';
+$DB_PASS = 'usbw';
+$DB_NAME = 'didaxie';
+
+// Conectar ao banco
+$mysqli = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+if ($mysqli->connect_error) {
+    die("Erro ao conectar no MySQL: " . $mysqli->connect_error);
+}
+$mysqli->set_charset("utf8mb4");
+
+// Pegar o código do quiz (exemplo: via GET ou sessão)
+$codigo = $_GET['codigo'] ?? $_SESSION['codigo_quiz'] ?? null;
+if (!$codigo) {
+    die("Código do quiz não fornecido.");
+}
+
+// Buscar o ID do quiz pelo código
+$stmt = $mysqli->prepare("SELECT id FROM quizzes WHERE codigo = ?");
+$stmt->bind_param("s", $codigo);
+$stmt->execute();
+$result = $stmt->get_result();
+$quiz = $result->fetch_assoc();
+if (!$quiz) {
+    die("Quiz não encontrado.");
+}
+$quiz_id = $quiz['id'];
+
+// Buscar perguntas e respostas
+$stmt = $mysqli->prepare("
+    SELECT q.id AS questao_id, q.enunciado, r.id AS resposta_id, r.texto, r.correta
+    FROM questoes q
+    LEFT JOIN respostas r ON r.questao_id = q.id
+    WHERE q.quiz_id = ?
+    ORDER BY q.id, r.id
+");
+$stmt->bind_param("i", $quiz_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Organizar em array de perguntas com respostas
+$perguntas = [];
+while ($row = $result->fetch_assoc()) {
+    $qid = $row['questao_id'];
+    if (!isset($perguntas[$qid])) {
+        $perguntas[$qid] = [
+            'pergunta' => $row['enunciado'],
+            'opcoes' => [],
+            'correta' => null
+        ];
+    }
+    if ($row['resposta_id']) {
+        $perguntas[$qid]['opcoes'][] = $row['texto'];
+        if ($row['correta']) {
+            $perguntas[$qid]['correta'] = count($perguntas[$qid]['opcoes']) - 1;
+        }
+    }
+}
+
+// Reindexar array para JavaScript
+$perguntas = array_values($perguntas);
+
+// Transformar em JSON para o JS
+$perguntas_json = json_encode($perguntas, JSON_UNESCAPED_UNICODE);
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -94,16 +164,7 @@
     const jogo = {
       // Dados do jogo
       jogadores: [],
-      perguntas: [
-        { pergunta: "Qual a capital do Brasil?", opcoes: ["São Paulo", "Brasília", "Rio de Janeiro", "Salvador"], correta: 1 },
-        { pergunta: "2 + 2 = ?", opcoes: ["3", "4", "5", "6"], correta: 1 },
-        { pergunta: "Qual é o maior planeta?", opcoes: ["Terra", "Vênus", "Júpiter", "Marte"], correta: 2 },
-        { pergunta: "Qual é o símbolo químico da água?", opcoes: ["H2O", "O2", "CO2", "H2"], correta: 0 },
-        { pergunta: "Em que continente está o Egito?", opcoes: ["Ásia", "Europa", "África", "América"], correta: 2 },
-        { pergunta: "Quantos minutos tem uma hora?", opcoes: ["50", "60", "70", "80"], correta: 1 },
-        { pergunta: "Qual é a moeda do Brasil?", opcoes: ["Peso", "Dólar", "Real", "Euro"], correta: 2 },
-        { pergunta: "Quantos dias tem um ano bissexto?", opcoes: ["365", "366", "367", "364"], correta: 1 }
-      ],
+      perguntas: <?= $perguntas_json ?>,
       
       // Estado do jogo
       perguntaAtual: 0,
@@ -685,25 +746,5 @@
       jogo.init();
     });
     </script>
-    <script>
-      async function carregarQuiz(codigo) {
-          const res = await fetch(`get_quiz.php?codigo=${codigo}`);
-          const data = await res.json();
-
-          if (data.error) {
-              document.body.innerHTML = `<p>${data.error}</p>`;
-              return;
-          }
-
-          document.querySelector("#tituloQuiz").innerText = data.quiz.titulo;
-          // Aqui depois você busca as questões
-      }
-
-      // Exemplo: pega código da URL (jogo1.php?codigo=ABC123)
-      const params = new URLSearchParams(window.location.search);
-      const codigo = params.get("codigo");
-      if (codigo) carregarQuiz(codigo);
-      </script>
-
 </body>
 </html>
