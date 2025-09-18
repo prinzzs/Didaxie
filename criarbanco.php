@@ -73,6 +73,23 @@ CREATE TABLE IF NOT EXISTS quizzes (
     FOREIGN KEY (professor_id) REFERENCES professores(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS questoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    quiz_id INT NOT NULL,
+    enunciado TEXT NOT NULL,
+    tipo ENUM('multipla_escolha','verdadeiro_falso') DEFAULT 'multipla_escolha',
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS respostas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    questao_id INT NOT NULL,
+    texto VARCHAR(255) NOT NULL,
+    correta BOOLEAN DEFAULT 0,
+    FOREIGN KEY (questao_id) REFERENCES questoes(id) ON DELETE CASCADE
+);
+
+
 CREATE TABLE IF NOT EXISTS quiz_participantes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     quiz_id INT NOT NULL,

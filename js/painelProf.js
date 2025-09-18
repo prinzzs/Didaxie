@@ -316,7 +316,9 @@
                         <td><span class="badge ${q.status==='publicado'?'badge-success':'badge-secondary'}">${q.status}</span></td>
                         <td>${(q.codigo ?? null)}</td>
                         <td>
-                            <button class="btn btn-sm btn-secondary" disabled>Abrir</button>
+                            <button class="btn btn-sm btn-secondary" onclick="window.location.href='editarQuiz.php?id=${q.id}'">
+                                Abrir
+                            </button>
                         </td>
                     </tr>
                 `).join('');

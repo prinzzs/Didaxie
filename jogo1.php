@@ -684,6 +684,26 @@
     document.addEventListener('DOMContentLoaded', function() {
       jogo.init();
     });
-  </script>
+    </script>
+    <script>
+      async function carregarQuiz(codigo) {
+          const res = await fetch(`get_quiz.php?codigo=${codigo}`);
+          const data = await res.json();
+
+          if (data.error) {
+              document.body.innerHTML = `<p>${data.error}</p>`;
+              return;
+          }
+
+          document.querySelector("#tituloQuiz").innerText = data.quiz.titulo;
+          // Aqui depois você busca as questões
+      }
+
+      // Exemplo: pega código da URL (jogo1.php?codigo=ABC123)
+      const params = new URLSearchParams(window.location.search);
+      const codigo = params.get("codigo");
+      if (codigo) carregarQuiz(codigo);
+      </script>
+
 </body>
 </html>
