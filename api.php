@@ -243,7 +243,7 @@ try {
         if ($stmt->execute()) {
             json_response(['ok' => true, 'id' => $stmt->insert_id]);
         } else {
-            if ($mysqli->errno === 1062) { // código duplicado (caso alguém tente forçar)
+            if ($mysqli->errno === 1062) {
                 json_response(['ok' => false, 'error' => 'Código já existe, gere outro']);
             }
             json_response(['ok' => false, 'error' => 'Erro ao salvar quiz']);

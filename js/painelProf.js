@@ -362,11 +362,29 @@
     },
 
     // Form Confirmar Quiz
-    initFormConfirmarQuiz: function() {
-        const form = $('#formConfirmarQuiz');
-        if (!form) return;
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+    // Seção corrigida do código JavaScript para evitar duplicação de requisições
+
+// Form Confirmar Quiz - VERSÃO CORRIGIDA
+initFormConfirmarQuiz: function() {
+    const form = $('#formConfirmarQuiz');
+    if (!form) return;
+    
+    // Remove listeners anteriores para evitar duplicação
+    form.replaceWith(form.cloneNode(true));
+    const newForm = $('#formConfirmarQuiz');
+    
+    newForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // Impede propagação do evento
+        
+        // Desabilita o botão de submit para evitar cliques múltiplos
+        const submitBtn = newForm.querySelector('button[type="submit"]');
+        if (submitBtn.disabled) return; // Se já está processando, retorna
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Salvando...';
+        
+        try {
             const payload = {
                 titulo: $('#tituloQuiz').value.trim(),
                 codigo: $('#quizCodigo').value.trim(),
@@ -386,7 +404,7 @@
             
             this.toast('Quiz criado com sucesso!', 'success');
             this.closeModal('modalConfirmarQuiz');
-            form.reset();
+            newForm.reset();
             
             // Remove a caixa do código
             const box = document.getElementById('quizCodigoBox');
@@ -395,10 +413,97 @@
             // Recarrega a lista de quizzes
             this.loadQuizzes();
             this.loadDashboard();
-        });
-    },
+            
+        } catch (error) {
+            console.error('Erro ao criar quiz:', error);
+            this.toast('Erro inesperado ao criar quiz', 'error');
+        } finally {
+            // Reabilita o botão
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Salvar Quiz';
+        }
+    });
+},
 
-    // Atualizar a função init para incluir o novo form
+// Função gerarQuiz corrigida
+gerarQuiz: async function() {
+    // Evita múltiplas chamadas simultâneas
+    if (this._gerandoQuiz) return;
+    this._gerandoQuiz = true;
+    
+    try {
+        const r = await this.api('gerar_quiz');
+        if (r.ok) {
+            // Remove caixa anterior se existir
+            const boxAnterior = document.getElementById('quizCodigoBox');
+            if (boxAnterior) boxAnterior.remove();
+            
+            // Cria nova caixa
+            const box = document.createElement('div');
+            box.id = 'quizCodigoBox';
+            box.style.marginTop = '15px';
+            box.style.fontSize = '18px';
+            box.style.fontWeight = 'bold';
+            box.innerHTML = `
+                📌 Código do Quiz: <span style='color:green'>${r.codigo}</span>
+                <br>
+                <button class="btn btn-success" style="margin-top: 10px;" onclick="admin.confirmarQuiz('${r.codigo}')">
+                    Confirmar Quiz
+                </button>
+            `;
+            
+            document.getElementById('quizzes').querySelector('.section-header').appendChild(box);
+            
+            // Armazena o código temporariamente
+            this._quizCodigoTemp = r.codigo;
+        } else {
+            alert("Erro ao gerar quiz: " + r.error);
+        }
+    } finally {
+        this._gerandoQuiz = false;
+    }
+},
+
+confirmarQuiz: function(codigo) {
+    const form = document.getElementById('formConfirmarQuiz');
+    if (form) form.reset();
+    
+    document.getElementById('quizCodigo').value = codigo;
+    this.showModal('modalConfirmarQuiz');
+},
+
+async api(action, data = {}, method = 'POST') {
+    const requestKey = JSON.stringify({ action, data, method });
+    
+    if (this._activeRequests && this._activeRequests[requestKey]) {
+        return this._activeRequests[requestKey];
+    }
+    
+    if (!this._activeRequests) {
+        this._activeRequests = {};
+    }
+    
+    const opts = { method };
+    const body = new URLSearchParams({ action, ...data });
+    
+    let promise;
+    
+    if (method === 'POST') {
+        opts.headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' };
+        opts.body = body.toString();
+        promise = fetch('api.php', { ...opts, credentials: 'same-origin' });
+    } else {
+        const url = 'api.php?' + body.toString();
+        promise = fetch(url, { credentials: 'same-origin' });
+    }
+    
+    this._activeRequests[requestKey] = promise.then(res => res.json()).finally(() => {
+        delete this._activeRequests[requestKey];
+    });
+    
+    return this._activeRequests[requestKey];
+},
+
     async init() {
         const ok = await this.initMe();
         if (!ok) return;
