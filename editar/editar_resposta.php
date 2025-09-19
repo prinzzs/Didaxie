@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 session_start();
+
 $DB_HOST = 'localhost';
 $DB_USER = 'root';
 $DB_PASS = '';
@@ -13,49 +14,54 @@ if ($mysqli->connect_error) {
 }
 $mysqli->set_charset("utf8mb4");
 
-// Pegar o ID do quiz da URL
-$quiz_id = $_GET['id'] ?? null;
-if (!$quiz_id || !is_numeric($quiz_id)) {
-    die("Quiz inválido.");
+// Pegar o ID da resposta da URL
+$resposta_id = $_GET['id'] ?? null;
+if (!$resposta_id || !is_numeric($resposta_id)) {
+    die("Resposta inválida.");
 }
 
-// Buscar quiz
-$stmt = $mysqli->prepare("SELECT titulo FROM quizzes WHERE id = ?");
-$stmt->bind_param("i", $quiz_id);
+// Buscar a resposta
+$stmt = $mysqli->prepare("SELECT * FROM respostas WHERE id = ?");
+$stmt->bind_param("i", $resposta_id);
 $stmt->execute();
-$result = $stmt->get_result();
-$quiz = $result->fetch_assoc();
-if (!$quiz) {
-    die("Quiz não encontrado.");
+$resposta = $stmt->get_result()->fetch_assoc();
+if (!$resposta) {
+    die("Resposta não encontrada.");
 }
 
-// Função para criar nova pergunta
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nova_pergunta'])) {
-    $enunciado = $_POST['enunciado'] ?? '';
-    $tipo = $_POST['tipo'] ?? 'multipla_escolha';
+$questao_id = $resposta['questao_id'];
 
-    if ($enunciado) {
-        $stmt = $mysqli->prepare("INSERT INTO questoes (quiz_id, enunciado, tipo) VALUES (?, ?, ?)");
-        $stmt->bind_param("iss", $quiz_id, $enunciado, $tipo);
+// Buscar a questão para exibir
+$stmt = $mysqli->prepare("SELECT enunciado, quiz_id FROM questoes WHERE id = ?");
+$stmt->bind_param("i", $questao_id);
+$stmt->execute();
+$questao = $stmt->get_result()->fetch_assoc();
+if (!$questao) {
+    die("Questão não encontrada.");
+}
+$quiz_id = $questao['quiz_id'];
+
+// Atualizar resposta
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $novo_texto = $_POST['texto'] ?? '';
+    $correta = isset($_POST['correta']) ? 1 : 0;
+
+    if ($novo_texto) {
+        $stmt = $mysqli->prepare("UPDATE respostas SET texto = ?, correta = ? WHERE id = ?");
+        $stmt->bind_param("sii", $novo_texto, $correta, $resposta_id);
         $stmt->execute();
-        header("Location: editarPerguntas.php?id=$quiz_id");
+        header("Location: ../editarRespostas.php?questao_id=$questao_id");
         exit;
     }
 }
 
-// Buscar perguntas existentes
-$stmt = $mysqli->prepare("SELECT * FROM questoes WHERE quiz_id = ?");
-$stmt->bind_param("i", $quiz_id);
-$stmt->execute();
-$perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Perguntas - <?= htmlspecialchars($quiz['titulo']) ?></title>
+    <title>Editar Resposta #<?= $resposta['id'] ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         /* Reset básico */
@@ -81,12 +87,12 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         /* Área principal do conteúdo */
         .content-area {
             flex: 1;
-            max-width: calc(100vw - 380px); /* Deixa espaço para o chat */
+            max-width: calc(100vw - 380px);
             padding: 20px;
             overflow-y: auto;
         }
 
-        /* Container do formulário */
+        /* Container principal */
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -116,23 +122,67 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         }
 
         .form-header h1 {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 400;
             margin-bottom: 8px;
             position: relative;
             z-index: 1;
         }
 
-        .form-header .subtitle {
-            font-size: 18px;
-            opacity: 0.9;
+        .question-preview {
+            background: rgba(255,255,255,.15);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
             position: relative;
             z-index: 1;
+        }
+
+        .question-preview-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            opacity: 0.8;
+            margin-bottom: 12px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.5;
         }
 
         /* Conteúdo do formulário */
         .form-content {
             padding: 32px;
+        }
+
+        /* Navegação de volta */
+        .back-nav {
+            margin-bottom: 32px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #673ab7;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            padding: 12px 20px;
+            border-radius: 24px;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(103,58,183,.2);
+        }
+
+        .back-link:hover {
+            background-color: rgba(103,58,183,.1);
+            border-color: rgba(103,58,183,.3);
+        }
+
+        .back-link::before {
+            content: '←';
+            margin-right: 10px;
+            font-size: 18px;
         }
 
         /* Seções */
@@ -149,8 +199,8 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             border-bottom: 3px solid #e8eaed;
         }
 
-        /* Card de pergunta */
-        .question-card {
+        /* Card de adicionar resposta */
+        .add-response-card {
             background: white;
             border: 1px solid #e8eaed;
             border-radius: 12px;
@@ -160,11 +210,11 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             transition: box-shadow 0.3s ease;
         }
 
-        .question-card:hover {
+        .add-response-card:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,.12);
         }
 
-        /* Formulário de nova pergunta */
+        /* Formulário */
         .form-group {
             margin-bottom: 28px;
         }
@@ -177,44 +227,73 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             margin-bottom: 12px;
         }
 
-        .form-group textarea {
+        .form-group input[type="text"] {
             width: 100%;
-            min-height: 140px;
             padding: 20px;
             border: 2px solid #dadce0;
             border-radius: 8px;
             font-family: inherit;
             font-size: 16px;
-            resize: vertical;
             transition: border-color 0.2s ease;
             background-color: #fafafa;
         }
 
-        .form-group textarea:focus {
+        .form-group input[type="text"]:focus {
             outline: none;
             border-color: #673ab7;
             background-color: white;
             box-shadow: 0 0 0 4px rgba(103,58,183,.1);
         }
 
-        .form-group select {
-            width: 100%;
-            padding: 16px 20px;
+        /* Checkbox customizado */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+        }
+
+        .custom-checkbox {
+            position: relative;
+            display: inline-block;
+        }
+
+        .custom-checkbox input[type="checkbox"] {
+            opacity: 0;
+            position: absolute;
+            width: 24px;
+            height: 24px;
+        }
+
+        .checkbox-design {
+            width: 24px;
+            height: 24px;
             border: 2px solid #dadce0;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 16px;
-            background-color: #fafafa;
-            color: #3c4043;
-            cursor: pointer;
-            transition: border-color 0.2s ease;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            background-color: white;
         }
 
-        .form-group select:focus {
-            outline: none;
+        .custom-checkbox input[type="checkbox"]:checked + .checkbox-design {
+            background-color: #673ab7;
             border-color: #673ab7;
-            background-color: white;
-            box-shadow: 0 0 0 4px rgba(103,58,183,.1);
+        }
+
+        .custom-checkbox input[type="checkbox"]:checked + .checkbox-design::after {
+            content: '✓';
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .checkbox-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #5f6368;
+            cursor: pointer;
         }
 
         /* Botões */
@@ -243,8 +322,8 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             box-shadow: 0 2px 8px rgba(103,58,183,.3);
         }
 
-        /* Card de pergunta existente */
-        .pergunta {
+        /* Cards de resposta */
+        .resposta {
             background: white;
             border: 1px solid #e8eaed;
             border-radius: 12px;
@@ -252,43 +331,68 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             margin-bottom: 20px;
             position: relative;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
-        .pergunta:hover {
+        .resposta:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,.1);
             border-color: #dadce0;
             transform: translateY(-2px);
         }
 
-        .pergunta strong {
+        .resposta.correct {
+            border-left: 4px solid #4caf50;
+            background: linear-gradient(90deg, rgba(76,175,80,.08) 0%, white 25%);
+        }
+
+        .resposta.incorrect {
+            border-left: 4px solid #f44336;
+            background: linear-gradient(90deg, rgba(244,67,54,.08) 0%, white 25%);
+        }
+
+        .response-id {
+            background: #f1f3f4;
             color: #5f6368;
+            padding: 6px 12px;
+            border-radius: 16px;
             font-size: 13px;
             font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
+            min-width: 50px;
+            text-align: center;
         }
 
-        .pergunta-content {
-            margin: 16px 0;
+        .response-text {
+            flex-grow: 1;
             font-size: 18px;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
-        .pergunta-tipo {
-            color: #673ab7;
+        .response-status {
             font-size: 15px;
             font-weight: 500;
-            margin-bottom: 20px;
-            background: rgba(103,58,183,.12);
-            padding: 6px 16px;
+            padding: 8px 16px;
             border-radius: 20px;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .response-status.correct {
+            background: rgba(76,175,80,.12);
+            color: #2e7d32;
+        }
+
+        .response-status.incorrect {
+            background: rgba(244,67,54,.12);
+            color: #c62828;
         }
 
         /* Links de ação */
         .actions {
             display: flex;
-            gap: 20px;
+            gap: 16px;
             align-items: center;
         }
 
@@ -427,15 +531,6 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             .chat-sidebar {
                 width: 320px;
             }
-            
-            .form-content {
-                padding: 24px;
-            }
-            
-            .question-card,
-            .pergunta {
-                padding: 20px;
-            }
         }
 
         @media (max-width: 768px) {
@@ -466,7 +561,7 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 font-size: 28px;
             }
             
-            .form-header .subtitle {
+            .question-text {
                 font-size: 16px;
             }
             
@@ -478,19 +573,20 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 font-size: 20px;
             }
             
-            .question-card,
-            .pergunta {
+            .add-response-card,
+            .resposta {
                 padding: 20px;
             }
-            
-            .actions {
+
+            .resposta {
                 flex-direction: column;
-                gap: 12px;
-                align-items: stretch;
+                align-items: flex-start;
+                gap: 16px;
             }
-            
-            .actions a {
-                text-align: center;
+
+            .actions {
+                width: 100%;
+                justify-content: space-between;
             }
         }
 
@@ -511,8 +607,8 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 padding: 16px;
             }
             
-            .question-card,
-            .pergunta {
+            .add-response-card,
+            .resposta {
                 padding: 16px;
             }
             
@@ -537,8 +633,8 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             }
         }
 
-        .pergunta,
-        .question-card {
+        .resposta,
+        .add-response-card {
             animation: fadeIn 0.4s ease-out;
         }
 
@@ -572,76 +668,63 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         .content-area::-webkit-scrollbar-thumb:hover {
             background: #a1a1a1;
         }
+
+        /* Melhorias de foco para acessibilidade */
+        *:focus {
+            outline: 2px solid #673ab7;
+            outline-offset: 2px;
+        }
+
+        input[type="text"]:focus,
+        input[type="checkbox"]:focus + .checkbox-design {
+            outline: none;
+            border-color: #673ab7;
+            box-shadow: 0 0 0 4px rgba(103,58,183,.1);
+        }
     </style>
 </head>
 <body>
     <div class="main-layout">
-        <!-- Área principal do conteúdo -->
         <div class="content-area">
             <div class="container">
                 <div class="form-header">
-                    <h1>Editar Perguntas</h1>
-                    <div class="subtitle"><?= htmlspecialchars($quiz['titulo']) ?></div>
+                    <h1>Editar Resposta</h1>
+                    <div class="question-preview">
+                        <div class="question-preview-title">Pergunta</div>
+                        <div class="question-text"><?= htmlspecialchars($questao['enunciado']) ?></div>
+                    </div>
                 </div>
 
                 <div class="form-content">
-                    <div class="section">
-                        <h2 class="section-title">Adicionar Nova Pergunta</h2>
-                        <div class="question-card">
-                            <form method="POST">
-                                <div class="form-group">
-                                    <label for="enunciado">Digite a pergunta</label>
-                                    <textarea name="enunciado" id="enunciado" placeholder="Digite sua pergunta aqui..." required></textarea>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="tipo">Tipo de pergunta</label>
-                                    <select name="tipo" id="tipo">
-                                        <option value="multipla_escolha">Múltipla Escolha</option>
-                                        <option value="verdadeiro_falso">Verdadeiro ou Falso</option>
-                                    </select>
-                                </div>
-                                
-                                <button class="botao" type="submit" name="nova_pergunta">Adicionar Pergunta</button>
-                            </form>
-                        </div>
+                    <div class="back-nav">
+                        <a href="editarRespostas.php?questao_id=<?= $questao_id ?>" class="back-link">Voltar para Respostas</a>
                     </div>
 
                     <div class="section">
-                        <h2 class="section-title">Perguntas Existentes</h2>
-                        
-                        <?php if (empty($perguntas)): ?>
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📝</div>
-                                <p>Nenhuma pergunta adicionada ainda.</p>
-                                <p>Comece criando sua primeira pergunta acima!</p>
-                            </div>
-                        <?php else: ?>
-                            <?php foreach ($perguntas as $p): ?>
-                                <div class="pergunta" data-tipo="<?= $p['tipo'] ?>">
-                                    <strong>Pergunta #<?= $p['id'] ?></strong>
-                                    <div class="pergunta-content">
-                                        <?= htmlspecialchars($p['enunciado']) ?>
-                                    </div>
-                                    <div class="pergunta-tipo">
-                                        <?= $p['tipo'] === 'multipla_escolha' ? 'Múltipla Escolha' : 'Verdadeiro ou Falso' ?>
-                                    </div>
-                                    <div class="actions">
-                                        <a href="editarRespostas.php?questao_id=<?= $p['id'] ?>">Editar Respostas</a>
-                                        <a href="excluir/excluir_pergunta.php?id=<?= $p['id'] ?>&quiz_id=<?= $quiz_id ?>" 
-                                            class="delete-link" 
-                                            onclick="return confirm('Deseja realmente excluir esta pergunta?')">Excluir
-                                        </a>
-                                    </div>
+                        <h2 class="section-title">Editar Resposta #<?= $resposta['id'] ?></h2>
+                        <div class="add-response-card">
+                            <form method="POST">
+                                <div class="form-group">
+                                    <label for="texto">Texto da resposta</label>
+                                    <input type="text" name="texto" id="texto" value="<?= htmlspecialchars($resposta['texto']) ?>" required>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                                
+                                <div class="checkbox-group">
+                                    <label class="custom-checkbox">
+                                        <input type="checkbox" name="correta" <?= $resposta['correta'] ? 'checked' : '' ?>>
+                                        <div class="checkbox-design"></div>
+                                    </label>
+                                    <span class="checkbox-label">Esta é a resposta correta</span>
+                                </div>
+                                
+                                <button class="botao" type="submit">Salvar Alterações</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Chat Sidebar (Desktop) -->
         <div class="chat-sidebar">
             <div class="chat-header">
                 <h3>🤖 Assistente IA</h3>
@@ -651,22 +734,10 @@ $perguntas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 <div class="chat-placeholder-icon">💬</div>
                 <div class="chat-placeholder-text">
                     <strong>Chat com IA em desenvolvimento</strong><br>
-                    Em breve você poderá conversar com nossa IA para ajudar na criação de perguntas e respostas!
+                    Em breve você poderá conversar com nossa IA!
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Chat Mobile Button -->
-    <button class="chat-mobile-btn" onclick="toggleMobileChat()">
-        💬
-    </button>
-
-    <script>
-        // Funcionalidade do botão mobile do chat
-        function toggleMobileChat() {
-            alert('Chat com IA em desenvolvimento!\n\nEm breve você poderá conversar com nossa IA para ajudar na criação de perguntas e respostas.');
-        }
-    </script>
 </body>
-</html> 
+</html>

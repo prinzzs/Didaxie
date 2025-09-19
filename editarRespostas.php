@@ -740,10 +740,12 @@ $respostas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                         <?php endif; ?>
                                     </div>
                                     <div class="actions">
-                                        <a href="editarRespostaUnica.php?id=<?= $r['id'] ?>&questao_id=<?= $questao_id ?>">Editar</a>
-                                        <a href="deletarResposta.php?id=<?= $r['id'] ?>&questao_id=<?= $questao_id ?>" 
-                                           class="delete-link" 
-                                           onclick="return confirm('Deseja realmente excluir esta resposta?')">Excluir</a>
+                                        <a href="editar/editar_resposta.php?id=<?= $r['id'] ?>&questao_id=<?= $questao_id ?>">Editar</a>
+                                        <a href="excluir/excluir_resposta.php?id=<?= $r['id'] ?>&questao_id=<?= $questao_id ?>" 
+                                            class="delete-link" 
+                                            onclick="return confirm('Deseja realmente excluir esta resposta?')">
+                                            Excluir
+                                        </a>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
