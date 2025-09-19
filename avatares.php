@@ -1,3 +1,44 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: login_aluno.php?codigo=" . urlencode($_GET['codigo'] ?? ''));
+    exit;
+}
+
+// --- Conexão com MySQL ---
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "didaxie";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Checa se a conexão deu certo
+if ($conn->connect_error) {
+    die("Erro na conexão: " . $conn->connect_error);
+}
+
+// --- Variáveis do usuário ---
+$alunoId = $_SESSION['usuario_id'];
+$codigoQuiz = $_GET['codigo'] ?? '';
+
+// --- Consulta perguntas ---
+$stmt = $conn->prepare("SELECT * FROM questoes WHERE quiz_id=?");
+$stmt->bind_param("s", $codigoQuiz);
+$stmt->execute();
+$result = $stmt->get_result();
+$perguntas = $result->fetch_all(MYSQLI_ASSOC);
+
+$stmtUser = $conn->prepare("SELECT personagem FROM alunos WHERE id=?");
+$stmtUser->bind_param("i", $alunoId);
+$stmtUser->execute();
+$resultUser = $stmtUser->get_result();
+$usuarioData = $resultUser->fetch_assoc();
+$agenteSelecionado = $usuarioData['personagem'] ?? 'Jett';
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -907,6 +948,15 @@
         <span class="play-text">PLAY</span>
     </div>
 
+    <script> 
+        const alunoLogado = { 
+            id: <?= json_encode($alunoId) ?>, 
+            nome: <?= json_encode($_SESSION['usuario_nome'] ?? 'Aluno') ?>, 
+            email: <?= json_encode($_SESSION['usuario_email'] ?? '') ?>,
+            agenteSelecionado: <?= json_encode($agenteSelecionado) ?>
+        }; 
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const filterTabs = document.querySelectorAll('.filter-tab');
@@ -1253,29 +1303,39 @@
             const playButton = document.getElementById('playButton');
             
             playButton.addEventListener('click', () => {
-                // Adiciona efeito visual de clique
-                playButton.style.transform = 'scale(0.9)';
-                setTimeout(() => {
-                    playButton.style.transform = '';
-                }, 150);
-                
-                // Simula ação de "jogar" - você pode personalizar esta ação
                 const selectedAgent = document.querySelector('.agent-card.selected:not(.locked)');
-                if (selectedAgent) {
-                    const agentName = selectedAgent.querySelector('.agent-name').textContent;
-                    alert(`Iniciando partida com ${agentName}! 🎮`);
-                } else {
+                if (!selectedAgent) {
                     alert('Selecione um agente desbloqueado primeiro! ⚡');
+                    return;
                 }
+
+                const agentName = selectedAgent.querySelector('.agent-name').textContent;
+
+                // Atualiza no banco via AJAX
+                fetch('atualizaAgente.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ alunoId: alunoLogado.id, agente: agentName })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        alert(`Partida iniciada com ${agentName}! 🎮`);
+                        alunoLogado.agenteSelecionado = agentName;
+                    } else {
+                        alert('Erro ao salvar agente. Tente novamente.');
+                    }
+                })
+                .catch(() => alert('Erro na comunicação com o servidor.'));
             });
+
             
-            // Auto-select first unlocked agent
+            // Auto-select do agente salvo
             setTimeout(() => {
-                const firstUnlockedCard = document.querySelector('.agent-card:not(.locked)');
-                if (firstUnlockedCard) {
-                    firstUnlockedCard.click();
-                }
+                const selectedCard = document.querySelector(`.agent-card[data-name="${alunoLogado.agenteSelecionado.toLowerCase()}"]`);
+                if (selectedCard) selectedCard.click();
             }, 100);
+
         });
     </script>
 </body>

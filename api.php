@@ -175,13 +175,16 @@ try {
             $turma_id = (int)($_POST['turma_id'] ?? 0);
             if ($nome === '' || $email === '') json_response(['ok' => false, 'error' => 'Preencha nome e email']);
 
-            $stmt = $mysqli->prepare("INSERT INTO alunos (nome,usuario,email,senha,turma_id,data_cadastro) VALUES (?,?,?,?,?,NOW())");
+            $personagem = trim($_POST['personagem'] ?? 'Jett'); // default caso não venha nada
+
+            $stmt = $mysqli->prepare("INSERT INTO alunos (nome,usuario,email,senha,turma_id,personagem,data_cadastro) 
+                                    VALUES (?,?,?,?,?,?,NOW())");
             if ($stmt) {
                 $usuario = $email;
-                $stmt->bind_param("ssssi", $nome, $usuario, $email, $senha, $turma_id);
+                $stmt->bind_param("ssssss", $nome, $usuario, $email, $senha, $turma_id, $personagem);
                 $stmt->execute();
                 $stmt->close();
-                json_response(['ok' => true, 'message' => 'Aluno cadastrado com sucesso!']);
+                json_response(['ok' => true, 'message' => 'Aluno cadastrado com sucesso!', 'personagem' => $personagem]);
             } else {
                 json_response(['ok' => false, 'error' => $mysqli->error]);
             }
@@ -285,4 +288,4 @@ try {
     json_response(['ok'=>false, 'error'=>$e->getMessage()]);
 }
 
-
+?>

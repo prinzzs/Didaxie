@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS alunos (
     email VARCHAR(100) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL,
     nascimento DATE NULL,
+    personagem varchar(20) NOT NULL DEFAULT 'Jett',
     data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (turma_id) REFERENCES turmas(id) ON DELETE CASCADE
 );
