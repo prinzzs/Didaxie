@@ -18,6 +18,11 @@ if (!$codigo) {
     die("Código do quiz não fornecido.");
 }
 
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: login_aluno.php?codigo=" . urlencode($_GET['codigo'] ?? ''));
+    exit;
+}
+
 // Buscar o ID do quiz pelo código
 $stmt = $mysqli->prepare("SELECT id FROM quizzes WHERE codigo = ?");
 $stmt->bind_param("s", $codigo);
