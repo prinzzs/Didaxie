@@ -8,12 +8,14 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Didaxie - Painel do Professor</title>
-    <link rel="stylesheet" href="css/painelProf.css">
+    <link rel="stylesheet" href="css/painel_professor.css">
+
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header">
+            <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
             <h1>📚 Didaxie - Painel do Professor</h1>
             <div class="user-info">
                 <div class="user-avatar" id="userAvatar">P</div>
@@ -27,7 +29,7 @@ session_start();
 
         <div class="main-content">
             <!-- Sidebar -->
-            <div class="sidebar">
+            <div class="sidebar" id="sidebar">
                 <nav>
                     <ul class="nav-menu">
                         <li class="nav-item">
@@ -322,7 +324,7 @@ session_start();
         </div>
     </div>
 
-        <!-- Modal Confirmar Quiz -->
+    <!-- Modal Confirmar Quiz -->
     <div id="modalConfirmarQuiz" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -355,7 +357,6 @@ session_start();
             </form>
         </div>
     </div>
-
 
     <script src="./js/painelProf.js"></script>
     <script>
